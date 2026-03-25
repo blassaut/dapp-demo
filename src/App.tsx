@@ -90,7 +90,7 @@ export default function App() {
           <div className="px-6 py-5 space-y-5">
             {/* Wrong network banner */}
             {appState === AppState.UnsupportedNetwork && (
-              <NetworkBanner networkName={networkName} />
+              <NetworkBanner networkName={networkName} provider={provider} />
             )}
 
             {/* Wallet connection */}
