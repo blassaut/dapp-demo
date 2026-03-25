@@ -25,6 +25,7 @@ export interface LockBoxProvider {
   deposit(amount: string): Promise<string>
   withdraw(amount: string): Promise<string>
   getBalance(): Promise<string>
+  getContractBalance(): Promise<string>
   getHistory(): Promise<TxRecord[]>
 }
 
@@ -47,6 +48,7 @@ export interface NetworkState {
 
 export interface LockBoxState {
   balance: string
+  contractBalance: string
   appState: AppState
   statusMessage: string
   lastAction: string

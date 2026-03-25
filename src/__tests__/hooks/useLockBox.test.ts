@@ -9,6 +9,7 @@ function mockProvider(overrides: Partial<LockBoxProvider> = {}): LockBoxProvider
     deposit: vi.fn().mockResolvedValue('0xtxhash'),
     withdraw: vi.fn().mockResolvedValue('0xtxhash'),
     getBalance: vi.fn().mockResolvedValue('0'),
+    getContractBalance: vi.fn().mockResolvedValue('0'),
     getHistory: vi.fn().mockResolvedValue([]),
     ...overrides,
   }

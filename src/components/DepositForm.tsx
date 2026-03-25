@@ -5,6 +5,7 @@ import { AppState } from '../lib/types'
 interface DepositFormProps {
   appState: AppState
   balance: string
+  walletBalance: string | null
   isConnected: boolean
   isSupported: boolean
   onDeposit: (amount: string) => void
@@ -14,6 +15,7 @@ interface DepositFormProps {
 export function DepositForm({
   appState,
   balance,
+  walletBalance,
   isConnected,
   isSupported,
   onDeposit,
@@ -32,21 +34,38 @@ export function DepositForm({
   const isPending = appState === AppState.Pending
   const canInteract = isConnected && isSupported && !isPending
   const parsedAmount = parseFloat(amount) || 0
-  const depositDisabled = !canInteract || parsedAmount <= 0
 
   // Use BigInt/wei comparison to avoid floating-point precision issues
-  let exceedsBalance = false
+  let exceedsLockedBalance = false
   try {
     if (amount && parsedAmount > 0) {
-      exceedsBalance = parseEther(amount) > parseEther(balance || '0')
+      exceedsLockedBalance = parseEther(amount) > parseEther(balance || '0')
     }
   } catch {
-    exceedsBalance = true
+    exceedsLockedBalance = true
   }
-  const withdrawDisabled = !canInteract || parsedAmount <= 0 || exceedsBalance
-  const withdrawTitle = exceedsBalance && parsedAmount > 0
-    ? `Insufficient balance (max ${balance} ETH)`
+
+  let exceedsWalletBalance = false
+  try {
+    if (amount && parsedAmount > 0 && walletBalance) {
+      exceedsWalletBalance = parseEther(amount) > parseEther(walletBalance)
+    }
+  } catch {
+    exceedsWalletBalance = true
+  }
+
+  const depositDisabled = !canInteract || parsedAmount <= 0 || exceedsWalletBalance
+  const withdrawDisabled = !canInteract || parsedAmount <= 0 || exceedsLockedBalance
+
+  const hasBalance = parseFloat(balance || '0') > 0
+  const depositHint = exceedsWalletBalance && parsedAmount > 0
+    ? `Max deposit: ${walletBalance} ETH`
     : undefined
+  const withdrawHint = !hasBalance
+    ? 'No locked balance to withdraw'
+    : exceedsLockedBalance && parsedAmount > 0
+      ? `Max withdraw: ${balance} ETH`
+      : undefined
 
   return (
     <div className="space-y-3">
@@ -80,12 +99,17 @@ export function DepositForm({
           data-testid="lockbox-button-withdraw"
           onClick={() => onWithdraw(amount)}
           disabled={withdrawDisabled}
-          title={withdrawTitle}
           className="flex-1 px-5 py-3 border border-white/[0.08] text-light/70 font-body font-semibold text-sm rounded-xl hover:bg-white/[0.03] hover:border-white/[0.12] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-white/[0.08] disabled:hover:translate-y-0"
         >
           Withdraw
         </button>
       </div>
+      {(depositHint || withdrawHint) && (
+        <div className="flex justify-between text-[11px] font-mono text-muted/40">
+          <p data-testid="deposit-hint">{depositHint ?? ''}</p>
+          <p data-testid="withdraw-hint">{withdrawHint ?? ''}</p>
+        </div>
+      )}
     </div>
   )
 }

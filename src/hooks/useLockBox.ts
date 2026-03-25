@@ -11,6 +11,7 @@ interface UseLockBoxProps {
 
 export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxProps): LockBoxState {
   const [balance, setBalance] = useState('0')
+  const [contractBalance, setContractBalance] = useState('0')
   const [appState, setAppState] = useState(AppState.Disconnected)
   const [statusMessage, setStatusMessage] = useState('')
   const [lastAction, setLastAction] = useState('')
@@ -38,6 +39,7 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
   useEffect(() => {
     if (!provider || !isConnected || !isSupported) return
     provider.getBalance().then(setBalance).catch(() => {})
+    provider.getContractBalance().then(setContractBalance).catch(() => {})
     provider.getHistory().then(setHistory).catch(() => {})
   }, [provider, isConnected, isSupported])
 
@@ -65,8 +67,12 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
 
       try {
         const txHash = await provider.deposit(amount)
-        const newBalance = await provider.getBalance()
+        const [newBalance, newContractBalance] = await Promise.all([
+          provider.getBalance(),
+          provider.getContractBalance(),
+        ])
         setBalance(newBalance)
+        setContractBalance(newContractBalance)
         setAppState(AppState.Confirmed)
         setStatusMessage('')
         setLastAction(`Deposit confirmed for ${amount} ETH`)
@@ -95,8 +101,12 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
 
     try {
       const txHash = await provider.withdraw(amount)
-      const newBalance = await provider.getBalance()
+      const [newBalance, newContractBalance] = await Promise.all([
+        provider.getBalance(),
+        provider.getContractBalance(),
+      ])
       setBalance(newBalance)
+      setContractBalance(newContractBalance)
       setAppState(AppState.Confirmed)
       setStatusMessage('')
       setLastAction(`Withdrawal confirmed for ${amount} ETH`)
@@ -118,5 +128,5 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
     }
   }, [])
 
-  return { balance, appState, statusMessage, lastAction, lastTxHash, history, deposit, withdraw }
+  return { balance, contractBalance, appState, statusMessage, lastAction, lastTxHash, history, deposit, withdraw }
 }

@@ -27,3 +27,16 @@ Feature: Visitor deposits successfully
     And I click the Deposit button
     And I approve the transaction in MetaMask
     Then after confirmation the amount input should be empty
+
+  Scenario: Deposit button disabled when amount exceeds wallet balance
+    Given I am connected on the supported network
+    When I enter "999999" in the amount input
+    Then the Deposit button should be disabled
+    And I should see the deposit hint showing the max wallet balance
+
+  Scenario: Contract balance updates after deposit
+    Given I am connected on the supported network
+    When I enter "0.1" in the amount input
+    And I click the Deposit button
+    And I approve the transaction in MetaMask
+    Then the contract balance should show a non-zero value

@@ -18,3 +18,9 @@ Feature: Visitor withdraws successfully
     Given I am connected on the supported network
     When I enter "99999" in the amount input
     Then the Withdraw button should be disabled
+
+  Scenario: Withdraw hint shows max balance
+    Given I am connected on the supported network
+    And I have already deposited successfully
+    When I enter "99999" in the amount input
+    Then I should see the withdraw hint showing the max locked balance

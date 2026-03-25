@@ -6,6 +6,7 @@ import { AppState } from '../../lib/types'
 const defaultProps = {
   appState: AppState.Idle,
   balance: '0',
+  walletBalance: '10.0',
   isConnected: true,
   isSupported: true,
   onDeposit: vi.fn(),
@@ -96,6 +97,19 @@ describe('DepositForm', () => {
 
     rerender(<DepositForm {...defaultProps} appState={AppState.Confirmed} />)
     expect(screen.getByTestId('lockbox-input-amount')).toHaveValue(null)
+  })
+
+  it('disables deposit button when amount exceeds wallet balance', () => {
+    render(<DepositForm {...defaultProps} walletBalance="1.0" />)
+    fireEvent.change(screen.getByTestId('lockbox-input-amount'), { target: { value: '5.0' } })
+    expect(screen.getByTestId('lockbox-button-deposit')).toBeDisabled()
+    expect(screen.getByTestId('deposit-hint')).toHaveTextContent('Max deposit: 1.0 ETH')
+  })
+
+  it('enables deposit button when amount is within wallet balance', () => {
+    render(<DepositForm {...defaultProps} walletBalance="10.0" />)
+    fireEvent.change(screen.getByTestId('lockbox-input-amount'), { target: { value: '5.0' } })
+    expect(screen.getByTestId('lockbox-button-deposit')).toBeEnabled()
   })
 
   it('preserves amount after rejection', () => {

@@ -5,6 +5,7 @@ const mockWait = vi.fn().mockResolvedValue(undefined)
 const mockDeposit = vi.fn().mockResolvedValue({ wait: mockWait })
 const mockWithdraw = vi.fn().mockResolvedValue({ wait: mockWait })
 const mockBalanceOf = vi.fn()
+const mockContractBalance = vi.fn()
 
 const mockSigner = {
   getAddress: vi.fn().mockResolvedValue('0xUserAddress'),
@@ -20,6 +21,7 @@ vi.mock('ethers', () => ({
     deposit: mockDeposit,
     withdraw: mockWithdraw,
     balanceOf: mockBalanceOf,
+    contractBalance: mockContractBalance,
   })),
   formatEther: vi.fn((val: bigint) => {
     const num = Number(val) / 1e18
@@ -34,6 +36,7 @@ beforeEach(() => {
   mockWithdraw.mockResolvedValue({ wait: mockWait })
   mockWait.mockResolvedValue(undefined)
   mockBalanceOf.mockReset()
+  mockContractBalance.mockReset()
   mockSigner.getAddress.mockResolvedValue('0xUserAddress')
   Object.defineProperty(window, 'ethereum', {
     value: { request: vi.fn(), on: vi.fn(), removeListener: vi.fn() },
@@ -78,6 +81,15 @@ describe('ContractProvider', () => {
     const balance = await provider.getBalance()
 
     expect(balance).toBe('0.0')
+  })
+
+  it('returns formatted contract balance', async () => {
+    mockContractBalance.mockResolvedValueOnce(3000000000000000000n)
+
+    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193)
+    const balance = await provider.getContractBalance()
+
+    expect(balance).toBe('3')
   })
 
   it('propagates deposit rejection', async () => {
