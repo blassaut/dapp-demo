@@ -7,7 +7,7 @@ describe('NetworkBanner', () => {
     render(<NetworkBanner networkName="Ethereum Mainnet" />)
     const banner = screen.getByTestId('network-banner-unsupported')
     expect(banner).toHaveTextContent('Unsupported network detected: Ethereum Mainnet')
-    expect(banner).toHaveTextContent('Switch to Ethereum Hoodi or Hardhat to continue')
+    expect(banner).toHaveTextContent('Switch to Ethereum Hoodi to continue')
   })
 
   it('renders nothing when networkName is null', () => {
