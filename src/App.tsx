@@ -63,7 +63,7 @@ export default function App() {
           <p className="text-[10px] font-mono text-teal-400/40">
             No mocks · real transactions on Hoodi testnet
           </p>
-          <p className="text-[10px] font-mono text-muted/30 mt-1">
+          <p className="text-[10px] font-mono text-teal-400/40 mt-1">
             Fully covered by e2e tests - including confirmation, rejection, and recovery states
           </p>
         </div>
