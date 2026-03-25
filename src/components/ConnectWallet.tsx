@@ -2,13 +2,14 @@ interface ConnectWalletProps {
   address: string | null
   isNoWallet: boolean
   onConnect: () => void
+  onDisconnect?: () => void
 }
 
 function truncateAddress(address: string): string {
   return `${address.slice(0, 6)}...${address.slice(-4)}`
 }
 
-export function ConnectWallet({ address, isNoWallet, onConnect }: ConnectWalletProps) {
+export function ConnectWallet({ address, isNoWallet, onConnect, onDisconnect }: ConnectWalletProps) {
   if (isNoWallet) {
     return (
       <p data-testid="wallet-not-detected" className="text-sm text-red-400/80 font-body">
@@ -19,12 +20,24 @@ export function ConnectWallet({ address, isNoWallet, onConnect }: ConnectWalletP
 
   if (address) {
     return (
-      <span
-        data-testid="wallet-address"
-        className="font-mono text-xs text-teal-400/80 bg-teal-400/[0.06] border border-teal-400/10 px-2.5 py-1 rounded-lg"
-      >
-        {truncateAddress(address)}
-      </span>
+      <div className="flex items-center gap-2">
+        <span
+          data-testid="wallet-address"
+          className="font-mono text-xs text-teal-400/80 bg-teal-400/[0.06] border border-teal-400/10 px-2.5 py-1 rounded-lg"
+        >
+          {truncateAddress(address)}
+        </span>
+        {onDisconnect && (
+          <button
+            data-testid="wallet-disconnect-button"
+            onClick={onDisconnect}
+            className="text-muted/30 hover:text-muted/60 transition-colors text-xs"
+            title="Disconnect"
+          >
+            &times;
+          </button>
+        )}
+      </div>
     )
   }
 

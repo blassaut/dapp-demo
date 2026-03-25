@@ -19,6 +19,7 @@ export interface WalletState {
   isConnected: boolean
   isNoWallet: boolean
   connect: () => Promise<void>
+  disconnect: () => void
 }
 
 export interface NetworkState {

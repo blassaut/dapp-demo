@@ -82,11 +82,17 @@ export function useWallet(): WalletState {
     return () => clearInterval(interval)
   }, [address, fetchBalance])
 
+  const disconnect = useCallback(() => {
+    setAddress(null)
+    setWalletBalance(null)
+  }, [])
+
   return {
     address,
     walletBalance,
     isConnected: address !== null,
     isNoWallet,
+    disconnect,
     connect,
   }
 }
