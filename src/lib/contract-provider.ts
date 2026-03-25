@@ -58,8 +58,13 @@ export class ContractProvider implements LockBoxProvider {
     const records: TxRecord[] = []
 
     // Limit block range to avoid RPC failures on public nodes
-    const currentBlock = await provider.getBlockNumber()
-    const fromBlock = Math.max(0, currentBlock - 50_000)
+    let fromBlock = 0
+    try {
+      const currentBlock = await provider.getBlockNumber()
+      fromBlock = Math.max(0, currentBlock - 50_000)
+    } catch {
+      // Fall back to scanning from block 0
+    }
 
     const depositFilter = contract.filters.Deposited(address)
     const withdrawFilter = contract.filters.Withdrawn(address)
