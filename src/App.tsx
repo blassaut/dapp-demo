@@ -15,7 +15,7 @@ import { StatusPanel } from './components/StatusPanel'
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS ?? ''
 
 export default function App() {
-  const { address, isConnected, isNoWallet, connect } = useWallet()
+  const { address, walletBalance, isConnected, isNoWallet, connect } = useWallet()
   const { networkName, isSupported } = useNetwork(isConnected)
 
   const provider = useMemo(() => {
@@ -64,13 +64,18 @@ export default function App() {
             {/* Connected state */}
             {isConnected && (
               <>
-                {/* Address bar */}
+                {/* Address + wallet balance */}
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono text-muted/40 uppercase tracking-wider">Wallet</span>
+                  <div>
+                    <span className="text-[10px] font-mono text-muted/40 uppercase tracking-wider block">Wallet</span>
+                    {walletBalance && (
+                      <span className="text-xs font-mono text-muted/50">{walletBalance} ETH</span>
+                    )}
+                  </div>
                   <ConnectWallet address={address} isNoWallet={isNoWallet} onConnect={connect} />
                 </div>
 
-                {/* Balance */}
+                {/* Locked balance */}
                 <LockedBalance balance={balance} />
 
                 {/* Divider */}

@@ -15,6 +15,7 @@ export interface LockBoxProvider {
 
 export interface WalletState {
   address: string | null
+  walletBalance: string | null
   isConnected: boolean
   isNoWallet: boolean
   connect: () => Promise<void>

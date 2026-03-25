@@ -12,9 +12,29 @@ declare global {
   }
 }
 
+function formatEthBalance(weiHex: string): string {
+  const wei = BigInt(weiHex)
+  const eth = Number(wei) / 1e18
+  return eth.toFixed(4)
+}
+
 export function useWallet(): WalletState {
   const [address, setAddress] = useState<string | null>(null)
+  const [walletBalance, setWalletBalance] = useState<string | null>(null)
   const [isNoWallet, setIsNoWallet] = useState(!window.ethereum)
+
+  const fetchBalance = useCallback(async (addr: string) => {
+    if (!window.ethereum) return
+    try {
+      const balanceHex = (await window.ethereum.request({
+        method: 'eth_getBalance',
+        params: [addr, 'latest'],
+      })) as string
+      setWalletBalance(formatEthBalance(balanceHex))
+    } catch {
+      setWalletBalance(null)
+    }
+  }, [])
 
   const connect = useCallback(async () => {
     if (!window.ethereum) {
@@ -28,11 +48,12 @@ export function useWallet(): WalletState {
       })) as string[]
       if (accounts.length > 0) {
         setAddress(accounts[0])
+        fetchBalance(accounts[0])
       }
     } catch {
       // User rejected or error - stay disconnected
     }
-  }, [])
+  }, [fetchBalance])
 
   useEffect(() => {
     if (!window.ethereum) return
@@ -41,8 +62,10 @@ export function useWallet(): WalletState {
       const accs = accounts as string[]
       if (accs.length === 0) {
         setAddress(null)
+        setWalletBalance(null)
       } else {
         setAddress(accs[0])
+        fetchBalance(accs[0])
       }
     }
 
@@ -50,10 +73,18 @@ export function useWallet(): WalletState {
     return () => {
       window.ethereum?.removeListener('accountsChanged', handleAccountsChanged)
     }
-  }, [])
+  }, [fetchBalance])
+
+  // Refresh balance periodically when connected
+  useEffect(() => {
+    if (!address) return
+    const interval = setInterval(() => fetchBalance(address), 15000)
+    return () => clearInterval(interval)
+  }, [address, fetchBalance])
 
   return {
     address,
+    walletBalance,
     isConnected: address !== null,
     isNoWallet,
     connect,
