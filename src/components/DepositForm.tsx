@@ -34,33 +34,38 @@ export function DepositForm({
   const withdrawDisabled = !canInteract || parseFloat(balance) <= 0
 
   return (
-    <div className="space-y-4">
-      <input
-        data-testid="lockbox-input-amount"
-        type="number"
-        placeholder="Amount in ETH"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        disabled={!canInteract}
-        min="0"
-        step="0.01"
-        className="w-full px-4 py-3 rounded-xl bg-dark-800/50 border border-white/10 text-light font-mono text-sm placeholder:text-muted/30 focus:border-teal-400/40 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
-      />
+    <div className="space-y-3">
+      <div className="relative">
+        <input
+          data-testid="lockbox-input-amount"
+          type="number"
+          placeholder="0.0"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          disabled={!canInteract}
+          min="0"
+          step="0.01"
+          className="w-full px-4 py-3.5 rounded-xl bg-dark-900/60 border border-white/[0.06] text-light font-mono text-lg placeholder:text-muted/20 focus:border-teal-400/30 focus:outline-none focus:ring-1 focus:ring-teal-400/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+        />
+        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono text-muted/30">
+          ETH
+        </span>
+      </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-2.5">
         <button
           data-testid="lockbox-button-deposit"
           onClick={() => onDeposit(amount)}
           disabled={depositDisabled}
-          className="flex-1 px-5 py-2.5 bg-teal-400 text-dark-900 font-body font-semibold rounded-lg hover:shadow-[0_0_20px_rgba(20,184,166,0.3)] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none"
+          className="flex-1 px-5 py-3 bg-teal-400 text-dark-900 font-body font-semibold text-sm rounded-xl hover:bg-teal-400/90 hover:shadow-[0_0_24px_rgba(20,184,166,0.2)] transition-all disabled:opacity-20 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:bg-teal-400"
         >
-          Deposit
+          {isPending ? 'Processing...' : 'Deposit'}
         </button>
         <button
           data-testid="lockbox-button-withdraw"
           onClick={onWithdraw}
           disabled={withdrawDisabled}
-          className="flex-1 px-5 py-2.5 border border-teal-400/30 text-teal-400 font-body font-semibold rounded-lg hover:bg-teal-400/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          className="flex-1 px-5 py-3 border border-white/[0.08] text-light/70 font-body font-semibold text-sm rounded-xl hover:bg-white/[0.03] hover:border-white/[0.12] transition-all disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-white/[0.08]"
         >
           Withdraw
         </button>

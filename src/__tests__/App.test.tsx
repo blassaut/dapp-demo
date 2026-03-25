@@ -17,30 +17,27 @@ beforeAll(() => {
 
 import App from '../App'
 
-describe('App', () => {
+describe('App - disconnected state', () => {
   it('renders wallet-not-detected when no wallet is available', () => {
     render(<App />)
     expect(screen.getByTestId('wallet-not-detected')).toBeInTheDocument()
   })
 
-  it('renders the lockbox balance', () => {
+  it('renders the app title', () => {
     render(<App />)
-    expect(screen.getByTestId('lockbox-balance')).toBeInTheDocument()
+    expect(screen.getByText('LockBox')).toBeInTheDocument()
   })
 
-  it('renders the status panel', () => {
+  it('does not render form elements when disconnected', () => {
     render(<App />)
-    expect(screen.getByTestId('status-panel')).toBeInTheDocument()
+    expect(screen.queryByTestId('lockbox-balance')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('lockbox-input-amount')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('lockbox-button-deposit')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('lockbox-button-withdraw')).not.toBeInTheDocument()
   })
 
-  it('renders deposit and withdraw buttons', () => {
+  it('shows connect prompt text', () => {
     render(<App />)
-    expect(screen.getByTestId('lockbox-button-deposit')).toBeInTheDocument()
-    expect(screen.getByTestId('lockbox-button-withdraw')).toBeInTheDocument()
-  })
-
-  it('renders amount input', () => {
-    render(<App />)
-    expect(screen.getByTestId('lockbox-input-amount')).toBeInTheDocument()
+    expect(screen.getByText('Connect your wallet to begin')).toBeInTheDocument()
   })
 })

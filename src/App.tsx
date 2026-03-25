@@ -38,42 +38,75 @@ export default function App() {
         : '')
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-heading font-bold text-light">LockBox Demo</h1>
-          <p className="text-xs font-mono text-muted/40">
-            {isConnected ? `Connected on ${networkName ?? 'unknown'}` : 'Connect your wallet to begin'}
-          </p>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
+      {/* Main card */}
+      <div className="w-full max-w-sm">
+        <div className="rounded-2xl border border-white/[0.06] bg-dark-800/40 backdrop-blur-sm overflow-hidden">
+          {/* Card header */}
+          <div className="px-6 pt-6 pb-4 border-b border-white/[0.04]">
+            <div className="flex items-center justify-between">
+              <h1 className="text-lg font-heading font-bold text-light">LockBox</h1>
+              {isConnected && <NetworkChip networkName={networkName} isSupported={isSupported} />}
+            </div>
+            {!isConnected && (
+              <p className="text-xs font-mono text-muted/40 mt-1">Connect your wallet to begin</p>
+            )}
+          </div>
+
+          {/* Card body */}
+          <div className="px-6 py-5 space-y-5">
+            {/* Wrong network banner */}
+            {appState === AppState.UnsupportedNetwork && (
+              <NetworkBanner networkName={networkName} />
+            )}
+
+            {/* Wallet connection */}
+            {!isConnected && (
+              <div className="py-6 text-center">
+                <ConnectWallet address={null} isNoWallet={isNoWallet} onConnect={connect} />
+              </div>
+            )}
+
+            {/* Connected state */}
+            {isConnected && (
+              <>
+                {/* Address bar */}
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-muted/40 uppercase tracking-wider">Wallet</span>
+                  <ConnectWallet address={address} isNoWallet={isNoWallet} onConnect={connect} />
+                </div>
+
+                {/* Balance */}
+                <LockedBalance balance={balance} />
+
+                {/* Divider */}
+                <div className="h-px bg-white/[0.04]" />
+
+                {/* Form */}
+                <DepositForm
+                  appState={appState}
+                  balance={balance}
+                  isConnected={isConnected}
+                  isSupported={isSupported}
+                  onDeposit={deposit}
+                  onWithdraw={withdraw}
+                />
+              </>
+            )}
+          </div>
+
+          {/* Status footer */}
+          {(currentStatus || lastAction) && (
+            <div className="border-t border-white/[0.04]">
+              <StatusPanel statusMessage={currentStatus} lastAction={lastAction} />
+            </div>
+          )}
         </div>
 
-        {/* Wallet + Network */}
-        <div className="flex items-center justify-between">
-          <ConnectWallet address={address} isNoWallet={isNoWallet} onConnect={connect} />
-          {isConnected && <NetworkChip networkName={networkName} isSupported={isSupported} />}
-        </div>
-
-        {/* Wrong network banner */}
-        {appState === AppState.UnsupportedNetwork && (
-          <NetworkBanner networkName={networkName} />
-        )}
-
-        {/* Balance */}
-        <LockedBalance balance={balance} />
-
-        {/* Form */}
-        <DepositForm
-          appState={appState}
-          balance={balance}
-          isConnected={isConnected}
-          isSupported={isSupported}
-          onDeposit={deposit}
-          onWithdraw={withdraw}
-        />
-
-        {/* Status */}
-        <StatusPanel statusMessage={currentStatus} lastAction={lastAction} />
+        {/* Subtle footer text */}
+        <p className="text-center text-[10px] font-mono text-muted/20 mt-4">
+          Demo mode - wallet interaction is real, balances are simulated
+        </p>
       </div>
     </div>
   )

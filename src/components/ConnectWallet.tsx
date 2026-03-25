@@ -11,7 +11,7 @@ function truncateAddress(address: string): string {
 export function ConnectWallet({ address, isNoWallet, onConnect }: ConnectWalletProps) {
   if (isNoWallet) {
     return (
-      <p data-testid="wallet-not-detected" className="text-sm text-red-400 font-body">
+      <p data-testid="wallet-not-detected" className="text-sm text-red-400/80 font-body">
         MetaMask not detected. Install MetaMask to continue.
       </p>
     )
@@ -21,7 +21,7 @@ export function ConnectWallet({ address, isNoWallet, onConnect }: ConnectWalletP
     return (
       <span
         data-testid="wallet-address"
-        className="font-mono text-sm text-teal-400 bg-teal-400/10 border border-teal-400/20 px-3 py-1.5 rounded-lg"
+        className="font-mono text-xs text-teal-400/80 bg-teal-400/[0.06] border border-teal-400/10 px-2.5 py-1 rounded-lg"
       >
         {truncateAddress(address)}
       </span>
@@ -32,7 +32,7 @@ export function ConnectWallet({ address, isNoWallet, onConnect }: ConnectWalletP
     <button
       data-testid="wallet-connect-button"
       onClick={onConnect}
-      className="px-5 py-2.5 bg-teal-400 text-dark-900 font-body font-semibold rounded-lg hover:shadow-[0_0_20px_rgba(20,184,166,0.3)] transition-all"
+      className="w-full px-5 py-3 bg-teal-400 text-dark-900 font-body font-semibold text-sm rounded-xl hover:bg-teal-400/90 hover:shadow-[0_0_24px_rgba(20,184,166,0.2)] transition-all"
     >
       Connect Wallet
     </button>
