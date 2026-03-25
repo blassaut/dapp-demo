@@ -68,7 +68,7 @@ export default function App() {
       <div className="w-full max-w-sm">
         {/* Billboard */}
         <div className="text-center mb-3">
-          <h1 className="text-lg font-heading font-bold text-light mb-0.5">LockBox — deposit & withdraw ETH</h1>
+          <h1 className="text-lg font-heading font-bold text-light mb-0.5">LockBox: deposit & withdraw ETH</h1>
           <p className="text-[11px] font-mono text-teal-400/50">Live transactions on Hoodi testnet · end-to-end tested</p>
         </div>
 
