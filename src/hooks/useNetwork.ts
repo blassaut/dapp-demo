@@ -26,6 +26,10 @@ function getNetworkName(chainId: number): string {
   return KNOWN_NETWORKS[chainId] ?? `Unknown (${chainId})`
 }
 
+function parseChainId(raw: string): number {
+  return raw.startsWith('0x') ? parseInt(raw, 16) : Number(raw)
+}
+
 export function useNetwork(isConnected: boolean, provider: Eip1193Provider | null): NetworkState {
   const [chainId, setChainId] = useState<number | null>(null)
 
@@ -37,8 +41,8 @@ export function useNetwork(isConnected: boolean, provider: Eip1193Provider | nul
 
     const fetchChainId = async () => {
       try {
-        const hex = (await provider.request({ method: 'eth_chainId' })) as string
-        setChainId(parseInt(hex, 16))
+        const raw = (await provider.request({ method: 'eth_chainId' })) as string
+        setChainId(parseChainId(raw))
       } catch {
         setChainId(null)
       }
@@ -47,8 +51,7 @@ export function useNetwork(isConnected: boolean, provider: Eip1193Provider | nul
     fetchChainId()
 
     const handleChainChanged = (newChainId: unknown) => {
-      const raw = newChainId as string
-      setChainId(raw.startsWith('0x') ? parseInt(raw, 16) : Number(raw))
+      setChainId(parseChainId(newChainId as string))
     }
 
     // Re-check chain when tab regains focus (MetaMask may not fire
