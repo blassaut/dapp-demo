@@ -11,6 +11,7 @@ import { NetworkBanner } from './components/NetworkBanner'
 import { LockedBalance } from './components/LockedBalance'
 import { DepositForm } from './components/DepositForm'
 import { StatusPanel } from './components/StatusPanel'
+import { TxHistory } from './components/TxHistory'
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS ?? ''
 
@@ -23,7 +24,7 @@ export default function App() {
     return new ContractProvider(CONTRACT_ADDRESS)
   }, [isConnected])
 
-  const { balance, appState, statusMessage, lastAction, lastTxHash, deposit, withdraw } = useLockBox({
+  const { balance, appState, statusMessage, lastAction, lastTxHash, history, deposit, withdraw } = useLockBox({
     provider,
     isConnected,
     isSupported,
@@ -77,6 +78,14 @@ export default function App() {
 
                 {/* Locked balance */}
                 <LockedBalance balance={balance} />
+
+                {/* Transaction history */}
+                {history.length > 0 && (
+                  <>
+                    <div className="h-px bg-white/[0.04]" />
+                    <TxHistory records={history} />
+                  </>
+                )}
 
                 {/* Divider */}
                 <div className="h-px bg-white/[0.04]" />

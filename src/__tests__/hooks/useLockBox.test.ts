@@ -6,9 +6,10 @@ import type { LockBoxProvider } from '../../lib/types'
 
 function mockProvider(overrides: Partial<LockBoxProvider> = {}): LockBoxProvider {
   return {
-    deposit: vi.fn().mockResolvedValue(undefined),
-    withdraw: vi.fn().mockResolvedValue(undefined),
+    deposit: vi.fn().mockResolvedValue('0xtxhash'),
+    withdraw: vi.fn().mockResolvedValue('0xtxhash'),
     getBalance: vi.fn().mockResolvedValue('0'),
+    getHistory: vi.fn().mockResolvedValue([]),
     ...overrides,
   }
 }

@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { AppState } from '../lib/types'
-import type { LockBoxProvider, LockBoxState } from '../lib/types'
+import type { LockBoxProvider, LockBoxState, TxRecord } from '../lib/types'
 import { STATUS_TIMEOUT_MS } from '../lib/constants'
 
 interface UseLockBoxProps {
@@ -15,6 +15,7 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
   const [statusMessage, setStatusMessage] = useState('')
   const [lastAction, setLastAction] = useState('')
   const [lastTxHash, setLastTxHash] = useState<string | null>(null)
+  const [history, setHistory] = useState<TxRecord[]>([])
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Derive base state from connection/network
@@ -33,11 +34,17 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
     }
   }, [isConnected, isSupported])
 
-  // Fetch locked balance on connect
+  // Fetch locked balance and history on connect
   useEffect(() => {
     if (!provider || !isConnected || !isSupported) return
     provider.getBalance().then(setBalance).catch(() => {})
+    provider.getHistory().then(setHistory).catch(() => {})
   }, [provider, isConnected, isSupported])
+
+  const refreshHistory = useCallback(() => {
+    if (!provider) return
+    provider.getHistory().then(setHistory).catch(() => {})
+  }, [provider])
 
   const returnToIdle = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
@@ -60,6 +67,7 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
         setStatusMessage('')
         setLastAction(`Deposit confirmed for ${amount} ETH`)
         setLastTxHash(txHash)
+        refreshHistory()
         returnToIdle()
       } catch {
         setAppState(AppState.Rejected)
@@ -85,6 +93,7 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
       setStatusMessage('')
       setLastAction(`Withdrawal confirmed for ${amount} ETH`)
       setLastTxHash(txHash)
+      refreshHistory()
       returnToIdle()
     } catch {
       setAppState(AppState.Rejected)
@@ -101,5 +110,5 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
     }
   }, [])
 
-  return { balance, appState, statusMessage, lastAction, lastTxHash, deposit, withdraw }
+  return { balance, appState, statusMessage, lastAction, lastTxHash, history, deposit, withdraw }
 }

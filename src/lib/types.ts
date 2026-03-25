@@ -7,10 +7,17 @@ export enum AppState {
   Rejected = 'rejected',
 }
 
+export interface TxRecord {
+  type: 'deposit' | 'withdrawal'
+  amount: string
+  txHash: string
+}
+
 export interface LockBoxProvider {
   deposit(amount: string): Promise<string>
   withdraw(amount: string): Promise<string>
   getBalance(): Promise<string>
+  getHistory(): Promise<TxRecord[]>
 }
 
 export interface WalletState {
@@ -34,6 +41,7 @@ export interface LockBoxState {
   statusMessage: string
   lastAction: string
   lastTxHash: string | null
+  history: TxRecord[]
   deposit: (amount: string) => Promise<void>
   withdraw: (amount: string) => Promise<void>
 }
