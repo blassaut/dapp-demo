@@ -1,10 +1,14 @@
-import { HardhatUserConfig } from 'hardhat/config'
-import '@nomicfoundation/hardhat-toolbox'
+import hardhatEthers from '@nomicfoundation/hardhat-ethers'
+import { defineConfig } from 'hardhat/config'
 
-const config: HardhatUserConfig = {
-  solidity: '0.8.24',
+export default defineConfig({
+  plugins: [hardhatEthers],
+  solidity: {
+    version: '0.8.24',
+  },
   networks: {
     hardhat: {
+      type: 'edr-simulated',
       chainId: 31337,
     },
   },
@@ -14,6 +18,4 @@ const config: HardhatUserConfig = {
     cache: './cache',
     artifacts: './artifacts',
   },
-}
-
-export default config
+})
