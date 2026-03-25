@@ -22,16 +22,18 @@ export class ContractProvider implements LockBoxProvider {
     return { contract, address }
   }
 
-  async deposit(amount: string): Promise<void> {
+  async deposit(amount: string): Promise<string> {
     const { contract } = await this.getContract()
     const tx = await contract.deposit({ value: parseEther(amount) })
     await tx.wait()
+    return tx.hash
   }
 
-  async withdraw(): Promise<void> {
+  async withdraw(): Promise<string> {
     const { contract } = await this.getContract()
     const tx = await contract.withdraw()
     await tx.wait()
+    return tx.hash
   }
 
   async getBalance(): Promise<string> {

@@ -14,6 +14,7 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
   const [appState, setAppState] = useState(AppState.Disconnected)
   const [statusMessage, setStatusMessage] = useState('')
   const [lastAction, setLastAction] = useState('')
+  const [lastTxHash, setLastTxHash] = useState<string | null>(null)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -45,17 +46,19 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
       setStatusMessage('Processing deposit...')
 
       try {
-        await provider.deposit(amount)
+        const txHash = await provider.deposit(amount)
         const newBalance = await provider.getBalance()
         setBalance(newBalance)
         setAppState(AppState.Confirmed)
         setStatusMessage('')
         setLastAction(`Deposit confirmed for ${amount} ETH`)
+        setLastTxHash(txHash)
         returnToIdle()
       } catch {
         setAppState(AppState.Rejected)
         setStatusMessage('')
         setLastAction('Transaction rejected')
+        setLastTxHash(null)
         returnToIdle()
       }
     },
@@ -68,17 +71,19 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
     setStatusMessage('Processing withdrawal...')
 
     try {
-      await provider.withdraw()
+      const txHash = await provider.withdraw()
       const newBalance = await provider.getBalance()
       setBalance(newBalance)
       setAppState(AppState.Confirmed)
       setStatusMessage('')
       setLastAction('Withdrawal confirmed')
+      setLastTxHash(txHash)
       returnToIdle()
     } catch {
       setAppState(AppState.Rejected)
       setStatusMessage('')
       setLastAction('Transaction rejected')
+      setLastTxHash(null)
       returnToIdle()
     }
   }, [provider, returnToIdle])
@@ -89,5 +94,5 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
     }
   }, [])
 
-  return { balance, appState, statusMessage, lastAction, deposit, withdraw }
+  return { balance, appState, statusMessage, lastAction, lastTxHash, deposit, withdraw }
 }

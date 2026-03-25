@@ -8,8 +8,8 @@ export enum AppState {
 }
 
 export interface LockBoxProvider {
-  deposit(amount: string): Promise<void>
-  withdraw(): Promise<void>
+  deposit(amount: string): Promise<string>
+  withdraw(): Promise<string>
   getBalance(): Promise<string>
 }
 
@@ -32,6 +32,7 @@ export interface LockBoxState {
   appState: AppState
   statusMessage: string
   lastAction: string
+  lastTxHash: string | null
   deposit: (amount: string) => Promise<void>
   withdraw: () => Promise<void>
 }

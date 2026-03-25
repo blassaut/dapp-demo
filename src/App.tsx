@@ -23,7 +23,7 @@ export default function App() {
     return new ContractProvider(CONTRACT_ADDRESS)
   }, [isConnected])
 
-  const { balance, appState, statusMessage, lastAction, deposit, withdraw } = useLockBox({
+  const { balance, appState, statusMessage, lastAction, lastTxHash, deposit, withdraw } = useLockBox({
     provider,
     isConnected,
     isSupported,
@@ -97,7 +97,7 @@ export default function App() {
           {/* Status footer */}
           {(currentStatus || lastAction) && (
             <div className="border-t border-white/[0.04]">
-              <StatusPanel statusMessage={currentStatus} lastAction={lastAction} />
+              <StatusPanel statusMessage={currentStatus} lastAction={lastAction} txHash={lastTxHash} />
             </div>
           )}
         </div>
