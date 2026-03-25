@@ -42,18 +42,18 @@ function ConfigError() {
 }
 
 export default function App() {
-  const { address, walletBalance, isConnected, isNoWallet, connect, disconnect } = useWallet()
-  const { chainId, networkName, isSupported } = useNetwork(isConnected)
+  const { address, walletBalance, isConnected, hasInjectedWallet, provider, connect, connectWalletConnect, disconnect } = useWallet()
+  const { chainId, networkName, isSupported } = useNetwork(isConnected, provider)
 
   const contractAddress = getContractAddress(chainId)
 
-  const provider = useMemo(() => {
-    if (!isConnected || !isValidAddress(contractAddress)) return null
-    return new ContractProvider(contractAddress)
-  }, [isConnected, contractAddress])
+  const contractProvider = useMemo(() => {
+    if (!isConnected || !provider || !isValidAddress(contractAddress)) return null
+    return new ContractProvider(contractAddress, provider)
+  }, [isConnected, provider, contractAddress])
 
   const { balance, appState, statusMessage, lastAction, lastTxHash, history, deposit, withdraw } = useLockBox({
-    provider,
+    provider: contractProvider,
     isConnected,
     isSupported,
   })
@@ -67,11 +67,11 @@ export default function App() {
       {/* Main card */}
       <div className="w-full max-w-sm">
         {/* Billboard */}
-        <div className="text-center mb-4">
-          <h1 className="text-lg font-heading font-bold text-light mb-1">Real on-chain flow — tested end-to-end</h1>
-          <p className="text-xs font-mono text-muted/50 mb-1">Wallet → MetaMask → on-chain tx → UI sync</p>
+        <div className="text-center mb-3">
+          <h1 className="text-lg font-heading font-bold text-light mb-0.5">Real on-chain flow - tested end-to-end</h1>
+          <p className="text-xs font-mono text-muted/50 mb-0.5">Wallet → on-chain tx → UI sync</p>
           <p className="text-[11px] font-mono text-teal-400/50">No mocks · real transactions (Hoodi testnet) · no real funds · fully e2e tested</p>
-          <p className="text-xs font-mono text-muted/50 mt-3">Try it ↓</p>
+          <p className="text-xs font-mono text-muted/50 mt-2">Try it ↓</p>
         </div>
 
         <div className="rounded-2xl border border-white/[0.10] bg-dark-800/50 backdrop-blur-sm overflow-hidden shadow-[0_0_50px_rgba(20,184,166,0.06)] hover:shadow-[0_0_70px_rgba(20,184,166,0.12)] hover:border-white/[0.15] hover:-translate-y-0.5 transition-all duration-300">
@@ -96,7 +96,12 @@ export default function App() {
             {/* Wallet connection */}
             {!isConnected && (
               <div className="py-6 text-center">
-                <ConnectWallet address={null} isNoWallet={isNoWallet} onConnect={connect} />
+                <ConnectWallet
+                  address={null}
+                  hasInjectedWallet={hasInjectedWallet}
+                  onConnect={connect}
+                  onConnectWalletConnect={connectWalletConnect}
+                />
               </div>
             )}
 
@@ -111,7 +116,13 @@ export default function App() {
                       <span className="text-xs font-mono text-muted/50">{walletBalance} ETH</span>
                     )}
                   </div>
-                  <ConnectWallet address={address} isNoWallet={isNoWallet} onConnect={connect} onDisconnect={disconnect} />
+                  <ConnectWallet
+                    address={address}
+                    hasInjectedWallet={hasInjectedWallet}
+                    onConnect={connect}
+                    onConnectWalletConnect={connectWalletConnect}
+                    onDisconnect={disconnect}
+                  />
                 </div>
 
                 {/* Locked balance */}

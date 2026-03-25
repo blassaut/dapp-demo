@@ -1,5 +1,5 @@
 import { BrowserProvider, Contract, formatEther, parseEther, EventLog } from 'ethers'
-import type { LockBoxProvider, TxRecord } from './types'
+import type { Eip1193Provider, LockBoxProvider, TxRecord } from './types'
 
 const LOCKBOX_ABI = [
   'function deposit() external payable',
@@ -11,14 +11,15 @@ const LOCKBOX_ABI = [
 
 export class ContractProvider implements LockBoxProvider {
   private contractAddress: string
+  private eip1193Provider: Eip1193Provider
 
-  constructor(contractAddress: string) {
+  constructor(contractAddress: string, eip1193Provider: Eip1193Provider) {
     this.contractAddress = contractAddress
+    this.eip1193Provider = eip1193Provider
   }
 
   private async getContract() {
-    if (!window.ethereum) throw new Error('No wallet provider found')
-    const provider = new BrowserProvider(window.ethereum)
+    const provider = new BrowserProvider(this.eip1193Provider)
     const signer = await provider.getSigner()
     const address = await signer.getAddress()
     const contract = new Contract(this.contractAddress, LOCKBOX_ABI, signer)
@@ -79,7 +80,6 @@ export class ContractProvider implements LockBoxProvider {
       }
     }
 
-    // Sort by block number (newest first)
     records.sort((a, b) => b.blockNumber - a.blockNumber)
 
     return records

@@ -1,23 +1,19 @@
 interface ConnectWalletProps {
   address: string | null
-  isNoWallet: boolean
+  hasInjectedWallet: boolean
   onConnect: () => void
+  onConnectWalletConnect: () => void
   onDisconnect?: () => void
 }
+
+const primaryButtonClass =
+  'w-full px-5 py-3.5 bg-teal-400 text-dark-900 font-body font-semibold text-sm rounded-xl shadow-[0_0_20px_rgba(20,184,166,0.15)] hover:bg-teal-300 hover:shadow-[0_0_40px_rgba(20,184,166,0.4)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200'
 
 function truncateAddress(address: string): string {
   return `${address.slice(0, 6)}...${address.slice(-4)}`
 }
 
-export function ConnectWallet({ address, isNoWallet, onConnect, onDisconnect }: ConnectWalletProps) {
-  if (isNoWallet) {
-    return (
-      <p data-testid="wallet-not-detected" className="text-sm text-red-400/80 font-body">
-        MetaMask not detected. Install MetaMask to try the live flow.
-      </p>
-    )
-  }
-
+export function ConnectWallet({ address, hasInjectedWallet, onConnect, onConnectWalletConnect, onDisconnect }: ConnectWalletProps) {
   if (address) {
     return (
       <div className="flex items-center gap-2">
@@ -41,11 +37,33 @@ export function ConnectWallet({ address, isNoWallet, onConnect, onDisconnect }: 
     )
   }
 
+  if (hasInjectedWallet) {
+    return (
+      <div className="space-y-1.5">
+        <button
+          data-testid="wallet-connect-button"
+          onClick={onConnect}
+          className={primaryButtonClass}
+        >
+          Connect Wallet
+        </button>
+        <button
+          data-testid="walletconnect-button"
+          onClick={onConnectWalletConnect}
+          className="w-full px-4 py-1.5 text-xs font-mono text-muted/60 hover:text-muted/90 transition-colors"
+        >
+          or use WalletConnect
+        </button>
+      </div>
+    )
+  }
+
+  // No injected wallet (mobile browser, etc.) — WalletConnect is the primary option
   return (
     <button
       data-testid="wallet-connect-button"
-      onClick={onConnect}
-      className="w-full px-5 py-3.5 bg-teal-400 text-dark-900 font-body font-semibold text-sm rounded-xl shadow-[0_0_20px_rgba(20,184,166,0.15)] hover:bg-teal-300 hover:shadow-[0_0_40px_rgba(20,184,166,0.4)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200"
+      onClick={onConnectWalletConnect}
+      className={primaryButtonClass}
     >
       Connect Wallet
     </button>

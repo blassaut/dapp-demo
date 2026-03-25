@@ -2,6 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useWallet } from '../../hooks/useWallet'
 
+// Mock walletconnect module so it doesn't try to load real WC dependencies
+vi.mock('../../lib/walletconnect', () => ({
+  connectWalletConnectProvider: vi.fn(),
+  disconnectWalletConnect: vi.fn(),
+  isWalletConnectConfigured: vi.fn(() => false),
+}))
+
 const mockRequest = vi.fn()
 const mockOn = vi.fn()
 const mockRemoveListener = vi.fn()
@@ -28,17 +35,17 @@ describe('useWallet', () => {
     const { result } = renderHook(() => useWallet())
     expect(result.current.address).toBeNull()
     expect(result.current.isConnected).toBe(false)
-    expect(result.current.isNoWallet).toBe(false)
+    expect(result.current.hasInjectedWallet).toBe(true)
   })
 
-  it('detects no wallet when window.ethereum is undefined', () => {
+  it('detects no injected wallet when window.ethereum is undefined', () => {
     Object.defineProperty(window, 'ethereum', {
       value: undefined,
       writable: true,
       configurable: true,
     })
     const { result } = renderHook(() => useWallet())
-    expect(result.current.isNoWallet).toBe(true)
+    expect(result.current.hasInjectedWallet).toBe(false)
   })
 
   it('connects and returns address on successful eth_requestAccounts', async () => {
@@ -65,7 +72,7 @@ describe('useWallet', () => {
     expect(result.current.isConnected).toBe(false)
   })
 
-  it('sets isNoWallet true when connect is called without ethereum', async () => {
+  it('does nothing when connect is called without injected wallet', async () => {
     Object.defineProperty(window, 'ethereum', {
       value: undefined,
       writable: true,
@@ -77,7 +84,7 @@ describe('useWallet', () => {
       await result.current.connect()
     })
 
-    expect(result.current.isNoWallet).toBe(true)
+    expect(result.current.hasInjectedWallet).toBe(false)
     expect(result.current.isConnected).toBe(false)
   })
 })

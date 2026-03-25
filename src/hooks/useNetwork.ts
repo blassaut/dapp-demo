@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import type { NetworkState } from '../lib/types'
+import type { NetworkState, Eip1193Provider } from '../lib/types'
 import { HOODI_CHAIN_ID, HARDHAT_CHAIN_ID, HOODI_NETWORK_NAME, HARDHAT_NETWORK_NAME, SUPPORTED_CHAIN_IDS } from '../lib/constants'
 
 const KNOWN_NETWORKS: Record<number, string> = {
@@ -15,18 +15,18 @@ function getNetworkName(chainId: number): string {
   return KNOWN_NETWORKS[chainId] ?? `Unknown (${chainId})`
 }
 
-export function useNetwork(isConnected: boolean): NetworkState {
+export function useNetwork(isConnected: boolean, provider: Eip1193Provider | null): NetworkState {
   const [chainId, setChainId] = useState<number | null>(null)
 
   useEffect(() => {
-    if (!isConnected || !window.ethereum) {
+    if (!isConnected || !provider) {
       setChainId(null)
       return
     }
 
     const fetchChainId = async () => {
       try {
-        const hex = (await window.ethereum!.request({ method: 'eth_chainId' })) as string
+        const hex = (await provider.request({ method: 'eth_chainId' })) as string
         setChainId(parseInt(hex, 16))
       } catch {
         setChainId(null)
@@ -45,15 +45,15 @@ export function useNetwork(isConnected: boolean): NetworkState {
       if (document.visibilityState === 'visible') fetchChainId()
     }
 
-    window.ethereum.on('chainChanged', handleChainChanged)
+    provider.on('chainChanged', handleChainChanged)
     document.addEventListener('visibilitychange', handleVisibilityChange)
     window.addEventListener('focus', fetchChainId)
     return () => {
-      window.ethereum?.removeListener('chainChanged', handleChainChanged)
+      provider.removeListener('chainChanged', handleChainChanged)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('focus', fetchChainId)
     }
-  }, [isConnected])
+  }, [isConnected, provider])
 
   return {
     chainId,
