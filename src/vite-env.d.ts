@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_MODE: 'demo' | 'test'
+  readonly VITE_CONTRACT_ADDRESS: string
 }
 
 interface ImportMeta {

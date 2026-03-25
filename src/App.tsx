@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useWallet } from './hooks/useWallet'
 import { useNetwork } from './hooks/useNetwork'
 import { useLockBox } from './hooks/useLockBox'
-import { ControlledProvider } from './lib/controlled-provider'
+import { ContractProvider } from './lib/contract-provider'
 import { AppState } from './lib/types'
 
 import { ConnectWallet } from './components/ConnectWallet'
@@ -12,15 +12,15 @@ import { LockedBalance } from './components/LockedBalance'
 import { DepositForm } from './components/DepositForm'
 import { StatusPanel } from './components/StatusPanel'
 
+const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS ?? ''
+
 export default function App() {
   const { address, isConnected, isNoWallet, connect } = useWallet()
   const { networkName, isSupported } = useNetwork(isConnected)
 
-  // VITE_MODE selects provider: 'demo' uses personal_sign + local state,
-  // 'test' will use contract-provider (added in contract-provider plan)
   const provider = useMemo(() => {
-    if (!isConnected) return null
-    return new ControlledProvider()
+    if (!isConnected || !CONTRACT_ADDRESS) return null
+    return new ContractProvider(CONTRACT_ADDRESS)
   }, [isConnected])
 
   const { balance, appState, statusMessage, lastAction, deposit, withdraw } = useLockBox({
@@ -96,7 +96,6 @@ export default function App() {
             </div>
           )}
         </div>
-
       </div>
     </div>
   )
