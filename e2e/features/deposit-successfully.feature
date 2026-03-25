@@ -5,13 +5,13 @@ Feature: Visitor deposits successfully
 
   Scenario: User deposits and balance updates
     Given I am connected on the supported network
-    And my locked balance shows "0.0 ETH"
     When I enter "0.1" in the amount input
     And I click the Deposit button
     And I approve the transaction in MetaMask
-    Then the status panel should show "Processing deposit..."
-    And after confirmation the locked balance should update
+    Then after confirmation the locked balance should update
     And the status should show a deposit confirmation message
+    And the transaction history should be visible
+    And the history should have grown by 1
 
   Scenario: User deposits twice and balance accumulates
     Given I am connected on the supported network

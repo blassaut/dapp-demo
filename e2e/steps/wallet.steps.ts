@@ -36,13 +36,19 @@ Given('MetaMask is not installed', async ({ page }) => {
 // ---------------------------------------------------------------------------
 
 When('I click the Connect Wallet button', async ({ page }) => {
+  // Store popup promise BEFORE clicking to avoid race condition
+  ;(page as any).__connectPopup = page.context().waitForEvent('page')
   await page.getByTestId('wallet-connect-button').click()
 })
 
-When('I approve the connection in MetaMask', async ({ wallet }) => {
-  // TODO: dappwright.approve() - confirms the MetaMask "Connect" popup
-  // that appears when the dApp requests account access.
-  await wallet.approve()
+When('I approve the connection in MetaMask', async ({ page }) => {
+  const popupPromise = (page as any).__connectPopup as Promise<import('playwright-core').Page>
+  if (!popupPromise) throw new Error('No pending popup - click Connect first')
+  const popup = await popupPromise
+  await popup.getByTestId('confirm-btn').click()
+  if (!popup.isClosed()) await popup.waitForEvent('close')
+  ;(page as any).__connectPopup = null
+  await page.bringToFront()
 })
 
 When('I close the MetaMask connection prompt', async ({ wallet }) => {

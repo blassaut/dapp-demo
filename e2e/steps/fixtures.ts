@@ -40,6 +40,10 @@ export const test = base.extend<
         symbol: 'ETH',
       })
 
+      // Sepolia is built-in to MetaMask (used by wrong-network tests).
+      // No need to add it - just ensure we're on Hardhat for the test suite.
+
+
       await use(context)
       await context.close()
     },
