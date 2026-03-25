@@ -1,40 +1,42 @@
-import { expect } from 'chai'
-import { ethers } from 'hardhat'
+import { describe, it } from 'node:test'
+import assert from 'node:assert/strict'
+import { network } from 'hardhat'
+
+async function deployFixture() {
+  const { ethers } = await network.connect()
+  const factory = await ethers.getContractFactory('LockBox')
+  const lockbox = await factory.deploy()
+  await lockbox.waitForDeployment()
+  return { lockbox, ethers }
+}
 
 describe('LockBox', () => {
-  async function deployFixture() {
-    const factory = await ethers.getContractFactory('LockBox')
-    const lockbox = await factory.deploy()
-    await lockbox.waitForDeployment()
-    return { lockbox }
-  }
-
   it('starts with zero balance', async () => {
-    const { lockbox } = await deployFixture()
+    const { lockbox, ethers } = await deployFixture()
     const [owner] = await ethers.getSigners()
     const balance = await lockbox.balanceOf(owner.address)
-    expect(balance).to.equal(0n)
+    assert.equal(balance, 0n)
   })
 
   it('accepts deposit and tracks balance', async () => {
-    const { lockbox } = await deployFixture()
+    const { lockbox, ethers } = await deployFixture()
     const [owner] = await ethers.getSigners()
     await lockbox.deposit({ value: ethers.parseEther('1.0') })
     const balance = await lockbox.balanceOf(owner.address)
-    expect(balance).to.equal(ethers.parseEther('1.0'))
+    assert.equal(balance, ethers.parseEther('1.0'))
   })
 
   it('accumulates deposits', async () => {
-    const { lockbox } = await deployFixture()
+    const { lockbox, ethers } = await deployFixture()
     await lockbox.deposit({ value: ethers.parseEther('0.5') })
     await lockbox.deposit({ value: ethers.parseEther('0.3') })
     const [owner] = await ethers.getSigners()
     const balance = await lockbox.balanceOf(owner.address)
-    expect(balance).to.equal(ethers.parseEther('0.8'))
+    assert.equal(balance, ethers.parseEther('0.8'))
   })
 
   it('withdraws full balance back to sender', async () => {
-    const { lockbox } = await deployFixture()
+    const { lockbox, ethers } = await deployFixture()
     const [owner] = await ethers.getSigners()
     await lockbox.deposit({ value: ethers.parseEther('1.0') })
 
@@ -44,44 +46,44 @@ describe('LockBox', () => {
     const gasUsed = receipt!.gasUsed * receipt!.gasPrice
     const balanceAfter = await ethers.provider.getBalance(owner.address)
 
-    expect(balanceAfter + gasUsed - balanceBefore).to.equal(ethers.parseEther('1.0'))
-    expect(await lockbox.balanceOf(owner.address)).to.equal(0n)
+    assert.equal(balanceAfter + gasUsed - balanceBefore, ethers.parseEther('1.0'))
+    assert.equal(await lockbox.balanceOf(owner.address), 0n)
   })
 
   it('reverts withdraw when nothing deposited', async () => {
     const { lockbox } = await deployFixture()
-    try {
-      await lockbox.withdraw()
-      expect.fail('Expected revert')
-    } catch (error: unknown) {
-      const msg = (error as Error).message
-      expect(msg).to.include('Nothing deposited')
-    }
+    await assert.rejects(
+      async () => { await lockbox.withdraw() },
+      (error: unknown) => {
+        const msg = (error as Error).message
+        return msg.includes('Nothing deposited')
+      }
+    )
   })
 
   it('reverts deposit with zero value', async () => {
     const { lockbox } = await deployFixture()
-    try {
-      await lockbox.deposit({ value: 0n })
-      expect.fail('Expected revert')
-    } catch (error: unknown) {
-      const msg = (error as Error).message
-      expect(msg).to.include('Must send ETH')
-    }
+    await assert.rejects(
+      async () => { await lockbox.deposit({ value: 0n }) },
+      (error: unknown) => {
+        const msg = (error as Error).message
+        return msg.includes('Must send ETH')
+      }
+    )
   })
 
   it('tracks balances per address independently', async () => {
-    const { lockbox } = await deployFixture()
+    const { lockbox, ethers } = await deployFixture()
     const [addr1, addr2] = await ethers.getSigners()
     await lockbox.connect(addr1).deposit({ value: ethers.parseEther('1.0') })
     await lockbox.connect(addr2).deposit({ value: ethers.parseEther('2.0') })
 
-    expect(await lockbox.balanceOf(addr1.address)).to.equal(ethers.parseEther('1.0'))
-    expect(await lockbox.balanceOf(addr2.address)).to.equal(ethers.parseEther('2.0'))
+    assert.equal(await lockbox.balanceOf(addr1.address), ethers.parseEther('1.0'))
+    assert.equal(await lockbox.balanceOf(addr2.address), ethers.parseEther('2.0'))
   })
 
   it('resists reentrancy on withdraw', async () => {
-    const { lockbox } = await deployFixture()
+    const { lockbox, ethers } = await deployFixture()
     const ReentrantFactory = await ethers.getContractFactory('ReentrantAttacker')
     const attacker = await ReentrantFactory.deploy(await lockbox.getAddress())
     await attacker.waitForDeployment()
@@ -89,6 +91,6 @@ describe('LockBox', () => {
     await attacker.attack({ value: ethers.parseEther('1.0') })
 
     // CEI pattern prevents double-withdraw: attacker balance should be 0
-    expect(await lockbox.balanceOf(await attacker.getAddress())).to.equal(0n)
+    assert.equal(await lockbox.balanceOf(await attacker.getAddress()), 0n)
   })
 })

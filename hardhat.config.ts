@@ -1,8 +1,9 @@
 import hardhatEthers from '@nomicfoundation/hardhat-ethers'
+import hardhatNodeTestRunner from '@nomicfoundation/hardhat-node-test-runner'
 import { defineConfig } from 'hardhat/config'
 
 export default defineConfig({
-  plugins: [hardhatEthers],
+  plugins: [hardhatEthers, hardhatNodeTestRunner],
   solidity: {
     version: '0.8.24',
   },
