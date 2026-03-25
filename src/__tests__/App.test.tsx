@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest'
 import { render, screen } from '@testing-library/react'
 
+// Provide a valid contract address so App doesn't render ConfigError
+import.meta.env.VITE_CONTRACT_ADDRESS = '0x' + '1'.repeat(40)
+
 beforeAll(() => {
   global.IntersectionObserver = class {
     observe = vi.fn()
