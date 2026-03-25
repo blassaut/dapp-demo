@@ -1,14 +1,10 @@
-import { useState, useCallback, useEffect } from 'react'
-import type { WalletState } from '../lib/types'
+import { useState, useCallback, useEffect, useRef } from 'react'
+import type { WalletState, Eip1193Provider } from '../lib/types'
+import { connectWalletConnectProvider, disconnectWalletConnect, isWalletConnectConfigured } from '../lib/walletconnect'
 
 declare global {
   interface Window {
-    ethereum?: {
-      request: (args: { method: string; params?: unknown[] }) => Promise<unknown>
-      on: (event: string, handler: (...args: unknown[]) => void) => void
-      removeListener: (event: string, handler: (...args: unknown[]) => void) => void
-      isMetaMask?: boolean
-    }
+    ethereum?: Eip1193Provider & { isMetaMask?: boolean }
   }
 }
 
@@ -16,7 +12,6 @@ import { formatEther } from 'ethers'
 
 function formatEthBalance(weiHex: string): string {
   const formatted = formatEther(BigInt(weiHex))
-  // Show 4 decimal places
   const dot = formatted.indexOf('.')
   return dot === -1 ? formatted : formatted.slice(0, dot + 5)
 }
@@ -24,12 +19,13 @@ function formatEthBalance(weiHex: string): string {
 export function useWallet(): WalletState {
   const [address, setAddress] = useState<string | null>(null)
   const [walletBalance, setWalletBalance] = useState<string | null>(null)
-  const [isNoWallet, setIsNoWallet] = useState(!window.ethereum)
+  const providerRef = useRef<Eip1193Provider | null>(window.ethereum ?? null)
 
   const fetchBalance = useCallback(async (addr: string) => {
-    if (!window.ethereum) return
+    const p = providerRef.current
+    if (!p) return
     try {
-      const balanceHex = (await window.ethereum.request({
+      const balanceHex = (await p.request({
         method: 'eth_getBalance',
         params: [addr, 'latest'],
       })) as string
@@ -39,12 +35,11 @@ export function useWallet(): WalletState {
     }
   }, [])
 
+  /** Connect using the injected wallet (MetaMask, etc.) */
   const connect = useCallback(async () => {
-    if (!window.ethereum) {
-      setIsNoWallet(true)
-      return
-    }
+    if (!window.ethereum) return
 
+    providerRef.current = window.ethereum
     try {
       const accounts = (await window.ethereum.request({
         method: 'eth_requestAccounts',
@@ -58,8 +53,28 @@ export function useWallet(): WalletState {
     }
   }, [fetchBalance])
 
+  /** Connect via WalletConnect (Trust Wallet, Rainbow, etc.) */
+  const connectWalletConnect = useCallback(async () => {
+    if (!isWalletConnectConfigured()) return
+
+    try {
+      const wcProvider = await connectWalletConnectProvider()
+      providerRef.current = wcProvider
+
+      const accounts = (await wcProvider.request({ method: 'eth_accounts' })) as string[]
+      if (accounts.length > 0) {
+        setAddress(accounts[0])
+        fetchBalance(accounts[0])
+      }
+    } catch {
+      // User closed modal or rejected
+    }
+  }, [fetchBalance])
+
+  // Listen for account changes on the active provider
   useEffect(() => {
-    if (!window.ethereum) return
+    const p = providerRef.current
+    if (!p) return
 
     const handleAccountsChanged = (accounts: unknown) => {
       const accs = accounts as string[]
@@ -72,9 +87,9 @@ export function useWallet(): WalletState {
       }
     }
 
-    window.ethereum.on('accountsChanged', handleAccountsChanged)
+    p.on('accountsChanged', handleAccountsChanged)
     return () => {
-      window.ethereum?.removeListener('accountsChanged', handleAccountsChanged)
+      p.removeListener('accountsChanged', handleAccountsChanged)
     }
   }, [fetchBalance])
 
@@ -86,6 +101,8 @@ export function useWallet(): WalletState {
   }, [address, fetchBalance])
 
   const disconnect = useCallback(() => {
+    disconnectWalletConnect()
+    providerRef.current = window.ethereum ?? null
     setAddress(null)
     setWalletBalance(null)
   }, [])
@@ -94,8 +111,10 @@ export function useWallet(): WalletState {
     address,
     walletBalance,
     isConnected: address !== null,
-    isNoWallet,
-    disconnect,
+    hasInjectedWallet: Boolean(window.ethereum),
+    provider: providerRef.current,
     connect,
+    connectWalletConnect,
+    disconnect,
   }
 }

@@ -6,6 +6,13 @@ import { render, screen } from '@testing-library/react'
 // and App renders ConfigError instead of the wallet UI.
 vi.stubEnv('VITE_CONTRACT_ADDRESS', '0x' + '1'.repeat(40))
 
+// Mock walletconnect module so it doesn't try to load real WC dependencies
+vi.mock('../lib/walletconnect', () => ({
+  connectWalletConnectProvider: vi.fn(),
+  disconnectWalletConnect: vi.fn(),
+  isWalletConnectConfigured: vi.fn(() => false),
+}))
+
 beforeAll(() => {
   global.IntersectionObserver = class {
     observe = vi.fn()
@@ -23,9 +30,9 @@ beforeAll(() => {
 const { default: App } = await import('../App')
 
 describe('App - disconnected state', () => {
-  it('renders wallet-not-detected when no wallet is available', () => {
+  it('renders connect button when no injected wallet (WalletConnect fallback)', () => {
     render(<App />)
-    expect(screen.getByTestId('wallet-not-detected')).toBeInTheDocument()
+    expect(screen.getByTestId('wallet-connect-button')).toBeInTheDocument()
   })
 
   it('renders the app title', () => {

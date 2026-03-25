@@ -1,3 +1,10 @@
+/** EIP-1193 compatible provider (MetaMask, WalletConnect, etc.) */
+export interface Eip1193Provider {
+  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>
+  on: (event: string, handler: (...args: unknown[]) => void) => void
+  removeListener: (event: string, handler: (...args: unknown[]) => void) => void
+}
+
 export enum AppState {
   Disconnected = 'disconnected',
   UnsupportedNetwork = 'unsupported-network',
@@ -25,8 +32,10 @@ export interface WalletState {
   address: string | null
   walletBalance: string | null
   isConnected: boolean
-  isNoWallet: boolean
+  hasInjectedWallet: boolean
+  provider: Eip1193Provider | null
   connect: () => Promise<void>
+  connectWalletConnect: () => Promise<void>
   disconnect: () => void
 }
 

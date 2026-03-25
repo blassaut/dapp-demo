@@ -43,10 +43,11 @@ beforeEach(() => {
 })
 
 const FAKE_ADDRESS = '0x1234567890123456789012345678901234567890'
+const fakeEip1193 = { request: vi.fn(), on: vi.fn(), removeListener: vi.fn() }
 
 describe('ContractProvider', () => {
   it('calls contract.deposit and waits for tx', async () => {
-    const provider = new ContractProvider(FAKE_ADDRESS)
+    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193)
     await provider.deposit('0.5')
 
     expect(mockDeposit).toHaveBeenCalledOnce()
@@ -54,7 +55,7 @@ describe('ContractProvider', () => {
   })
 
   it('calls contract.withdraw and waits for tx', async () => {
-    const provider = new ContractProvider(FAKE_ADDRESS)
+    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193)
     await provider.withdraw('0.5')
 
     expect(mockWithdraw).toHaveBeenCalledOnce()
@@ -64,7 +65,7 @@ describe('ContractProvider', () => {
   it('returns formatted balance from contract', async () => {
     mockBalanceOf.mockResolvedValueOnce(1500000000000000000n)
 
-    const provider = new ContractProvider(FAKE_ADDRESS)
+    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193)
     const balance = await provider.getBalance()
 
     expect(balance).toBe('1.5')
@@ -73,7 +74,7 @@ describe('ContractProvider', () => {
   it('returns 0 balance when nothing deposited', async () => {
     mockBalanceOf.mockResolvedValueOnce(0n)
 
-    const provider = new ContractProvider(FAKE_ADDRESS)
+    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193)
     const balance = await provider.getBalance()
 
     expect(balance).toBe('0.0')
@@ -82,14 +83,14 @@ describe('ContractProvider', () => {
   it('propagates deposit rejection', async () => {
     mockDeposit.mockRejectedValueOnce(new Error('user rejected'))
 
-    const provider = new ContractProvider(FAKE_ADDRESS)
+    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193)
     await expect(provider.deposit('0.5')).rejects.toThrow('user rejected')
   })
 
   it('propagates withdraw rejection', async () => {
     mockWithdraw.mockRejectedValueOnce(new Error('user rejected'))
 
-    const provider = new ContractProvider(FAKE_ADDRESS)
+    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193)
     await expect(provider.withdraw('0.5')).rejects.toThrow('user rejected')
   })
 })
