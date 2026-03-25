@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "node": "hardhat node",
+    "deploy": "hardhat run scripts/deploy.ts --network localhost"
   },
   "dependencies": {
     "ethers": "^6.13.0",
