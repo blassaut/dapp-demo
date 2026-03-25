@@ -13,7 +13,7 @@ import { DepositForm } from './components/DepositForm'
 import { StatusPanel } from './components/StatusPanel'
 import { TxHistory } from './components/TxHistory'
 
-import { HARDHAT_CHAIN_ID, HOODI_RPC_URL } from './lib/constants'
+import { HARDHAT_CHAIN_ID, HARDHAT_RPC_URL, HOODI_RPC_URL } from './lib/constants'
 
 const HOODI_CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS ?? ''
 const HARDHAT_CONTRACT_ADDRESS = import.meta.env.VITE_HARDHAT_CONTRACT_ADDRESS ?? ''
@@ -47,7 +47,7 @@ export default function App() {
 
   const contractAddress = getContractAddress(chainId)
 
-  const rpcUrl = chainId === HARDHAT_CHAIN_ID ? 'http://127.0.0.1:8545' : HOODI_RPC_URL
+  const rpcUrl = chainId === HARDHAT_CHAIN_ID ? HARDHAT_RPC_URL : HOODI_RPC_URL
 
   const contractProvider = useMemo(() => {
     if (!isConnected || !provider || !isValidAddress(contractAddress)) return null
