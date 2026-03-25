@@ -64,7 +64,7 @@ export default function App() {
             No mocks · real transactions on Hoodi testnet
           </p>
           <p className="text-[10px] font-mono text-teal-400/40 mt-1">
-            Fully covered by e2e tests - including confirmation, rejection, and recovery states
+            Fully covered by end-to-end tests - including confirmation, rejection, and recovery states
           </p>
         </div>
 
