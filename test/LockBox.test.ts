@@ -106,6 +106,7 @@ describe('LockBox', () => {
 
     await lockbox.connect(addr1).withdraw(ethers.parseEther('0.5'))
     assert.equal(await lockbox.contractBalance(), ethers.parseEther('2.5'))
+    assert.equal(await lockbox.balanceOf(addr1.address), ethers.parseEther('0.5'))
   })
 
   it('tracks balances per address independently', async () => {
