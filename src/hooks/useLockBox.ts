@@ -58,6 +58,8 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
       if (!provider) return
       setAppState(AppState.Pending)
       setStatusMessage('Processing deposit...')
+      setLastAction('')
+      setLastTxHash(null)
 
       try {
         const txHash = await provider.deposit(amount)
@@ -84,6 +86,8 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
     if (!provider) return
     setAppState(AppState.Pending)
     setStatusMessage('Processing withdrawal...')
+    setLastAction('')
+    setLastTxHash(null)
 
     try {
       const txHash = await provider.withdraw(amount)
