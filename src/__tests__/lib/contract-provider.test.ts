@@ -50,7 +50,7 @@ const fakeEip1193 = { request: vi.fn(), on: vi.fn(), removeListener: vi.fn() }
 
 describe('ContractProvider', () => {
   it('calls contract.deposit and waits for tx', async () => {
-    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193)
+    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193, 'http://127.0.0.1:8545')
     await provider.deposit('0.5')
 
     expect(mockDeposit).toHaveBeenCalledOnce()
@@ -58,7 +58,7 @@ describe('ContractProvider', () => {
   })
 
   it('calls contract.withdraw and waits for tx', async () => {
-    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193)
+    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193, 'http://127.0.0.1:8545')
     await provider.withdraw('0.5')
 
     expect(mockWithdraw).toHaveBeenCalledOnce()
@@ -68,7 +68,7 @@ describe('ContractProvider', () => {
   it('returns formatted balance from contract', async () => {
     mockBalanceOf.mockResolvedValueOnce(1500000000000000000n)
 
-    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193)
+    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193, 'http://127.0.0.1:8545')
     const balance = await provider.getBalance()
 
     expect(balance).toBe('1.5')
@@ -77,7 +77,7 @@ describe('ContractProvider', () => {
   it('returns 0 balance when nothing deposited', async () => {
     mockBalanceOf.mockResolvedValueOnce(0n)
 
-    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193)
+    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193, 'http://127.0.0.1:8545')
     const balance = await provider.getBalance()
 
     expect(balance).toBe('0.0')
@@ -86,7 +86,7 @@ describe('ContractProvider', () => {
   it('returns formatted contract balance', async () => {
     mockContractBalance.mockResolvedValueOnce(3000000000000000000n)
 
-    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193)
+    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193, 'http://127.0.0.1:8545')
     const balance = await provider.getContractBalance()
 
     expect(balance).toBe('3')
@@ -95,14 +95,14 @@ describe('ContractProvider', () => {
   it('propagates deposit rejection', async () => {
     mockDeposit.mockRejectedValueOnce(new Error('user rejected'))
 
-    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193)
+    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193, 'http://127.0.0.1:8545')
     await expect(provider.deposit('0.5')).rejects.toThrow('user rejected')
   })
 
   it('propagates withdraw rejection', async () => {
     mockWithdraw.mockRejectedValueOnce(new Error('user rejected'))
 
-    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193)
+    const provider = new ContractProvider(FAKE_ADDRESS, fakeEip1193, 'http://127.0.0.1:8545')
     await expect(provider.withdraw('0.5')).rejects.toThrow('user rejected')
   })
 })
