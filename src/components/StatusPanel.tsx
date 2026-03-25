@@ -27,6 +27,7 @@ export function StatusPanel({ statusMessage, lastAction, txHash }: StatusPanelPr
           </p>
           {txHash && (
             <a
+              data-testid="status-tx-link"
               href={getTxUrl(txHash)}
               target="_blank"
               rel="noopener noreferrer"
