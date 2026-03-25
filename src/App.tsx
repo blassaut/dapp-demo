@@ -54,6 +54,14 @@ export default function App() {
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
       {/* Main card */}
       <div className="w-full max-w-sm">
+        {/* Description */}
+        <div className="text-center mb-6">
+          <h1 className="text-xl font-heading font-bold text-light mb-2">dApp Demo</h1>
+          <p className="text-xs font-body text-muted/50 leading-relaxed">
+            Deposit and withdraw ETH on Hoodi testnet. Real transactions, real wallet prompts, full history with Etherscan links.
+          </p>
+        </div>
+
         <div className="rounded-2xl border border-white/[0.06] bg-dark-800/40 backdrop-blur-sm overflow-hidden">
           {/* Card header */}
           <div className="px-6 pt-6 pb-4 border-b border-white/[0.04]">
