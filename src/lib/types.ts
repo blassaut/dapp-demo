@@ -7,9 +7,9 @@ export enum AppState {
   Rejected = 'rejected',
 }
 
-export interface StakingProvider {
-  stake(amount: string): Promise<void>
-  unstake(): Promise<void>
+export interface LockBoxProvider {
+  deposit(amount: string): Promise<void>
+  withdraw(): Promise<void>
   getBalance(): Promise<string>
 }
 
@@ -26,11 +26,11 @@ export interface NetworkState {
   isSupported: boolean
 }
 
-export interface StakingState {
+export interface LockBoxState {
   balance: string
   appState: AppState
   statusMessage: string
   lastAction: string
-  stake: (amount: string) => Promise<void>
-  unstake: () => Promise<void>
+  deposit: (amount: string) => Promise<void>
+  withdraw: () => Promise<void>
 }

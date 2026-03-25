@@ -1,15 +1,15 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { AppState } from '../lib/types'
-import type { StakingProvider, StakingState } from '../lib/types'
+import type { LockBoxProvider, LockBoxState } from '../lib/types'
 import { STATUS_TIMEOUT_MS } from '../lib/constants'
 
-interface UseStakingProps {
-  provider: StakingProvider | null
+interface UseLockBoxProps {
+  provider: LockBoxProvider | null
   isConnected: boolean
   isSupported: boolean
 }
 
-export function useStaking({ provider, isConnected, isSupported }: UseStakingProps): StakingState {
+export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxProps): LockBoxState {
   const [balance, setBalance] = useState('0')
   const [appState, setAppState] = useState(AppState.Disconnected)
   const [statusMessage, setStatusMessage] = useState('')
@@ -38,19 +38,19 @@ export function useStaking({ provider, isConnected, isSupported }: UseStakingPro
     }, STATUS_TIMEOUT_MS)
   }, [])
 
-  const stake = useCallback(
+  const deposit = useCallback(
     async (amount: string) => {
       if (!provider) return
       setAppState(AppState.Pending)
-      setStatusMessage('Processing stake...')
+      setStatusMessage('Processing deposit...')
 
       try {
-        await provider.stake(amount)
+        await provider.deposit(amount)
         const newBalance = await provider.getBalance()
         setBalance(newBalance)
         setAppState(AppState.Confirmed)
         setStatusMessage('')
-        setLastAction(`Stake confirmed for ${amount} ETH`)
+        setLastAction(`Deposit confirmed for ${amount} ETH`)
         returnToIdle()
       } catch {
         setAppState(AppState.Rejected)
@@ -62,18 +62,18 @@ export function useStaking({ provider, isConnected, isSupported }: UseStakingPro
     [provider, returnToIdle],
   )
 
-  const unstake = useCallback(async () => {
+  const withdraw = useCallback(async () => {
     if (!provider) return
     setAppState(AppState.Pending)
-    setStatusMessage('Processing unstake...')
+    setStatusMessage('Processing withdrawal...')
 
     try {
-      await provider.unstake()
+      await provider.withdraw()
       const newBalance = await provider.getBalance()
       setBalance(newBalance)
       setAppState(AppState.Confirmed)
       setStatusMessage('')
-      setLastAction('Unstake confirmed')
+      setLastAction('Withdrawal confirmed')
       returnToIdle()
     } catch {
       setAppState(AppState.Rejected)
@@ -89,5 +89,5 @@ export function useStaking({ provider, isConnected, isSupported }: UseStakingPro
     }
   }, [])
 
-  return { balance, appState, statusMessage, lastAction, stake, unstake }
+  return { balance, appState, statusMessage, lastAction, deposit, withdraw }
 }

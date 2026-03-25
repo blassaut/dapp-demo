@@ -1,23 +1,23 @@
 import { useState, useEffect, useRef } from 'react'
 import { AppState } from '../lib/types'
 
-interface StakeFormProps {
+interface DepositFormProps {
   appState: AppState
   balance: string
   isConnected: boolean
   isSupported: boolean
-  onStake: (amount: string) => void
-  onUnstake: () => void
+  onDeposit: (amount: string) => void
+  onWithdraw: () => void
 }
 
-export function StakeForm({
+export function DepositForm({
   appState,
   balance,
   isConnected,
   isSupported,
-  onStake,
-  onUnstake,
-}: StakeFormProps) {
+  onDeposit,
+  onWithdraw,
+}: DepositFormProps) {
   const [amount, setAmount] = useState('')
   const prevAppState = useRef(appState)
 
@@ -30,13 +30,13 @@ export function StakeForm({
 
   const isPending = appState === AppState.Pending
   const canInteract = isConnected && isSupported && !isPending
-  const stakeDisabled = !canInteract || !amount || parseFloat(amount) <= 0
-  const unstakeDisabled = !canInteract || parseFloat(balance) <= 0
+  const depositDisabled = !canInteract || !amount || parseFloat(amount) <= 0
+  const withdrawDisabled = !canInteract || parseFloat(balance) <= 0
 
   return (
     <div className="space-y-4">
       <input
-        data-testid="staking-input-amount"
+        data-testid="lockbox-input-amount"
         type="number"
         placeholder="Amount in ETH"
         value={amount}
@@ -49,20 +49,20 @@ export function StakeForm({
 
       <div className="flex gap-3">
         <button
-          data-testid="staking-button-stake"
-          onClick={() => onStake(amount)}
-          disabled={stakeDisabled}
+          data-testid="lockbox-button-deposit"
+          onClick={() => onDeposit(amount)}
+          disabled={depositDisabled}
           className="flex-1 px-5 py-2.5 bg-teal-400 text-dark-900 font-body font-semibold rounded-lg hover:shadow-[0_0_20px_rgba(20,184,166,0.3)] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none"
         >
-          Stake
+          Deposit
         </button>
         <button
-          data-testid="staking-button-unstake"
-          onClick={onUnstake}
-          disabled={unstakeDisabled}
+          data-testid="lockbox-button-withdraw"
+          onClick={onWithdraw}
+          disabled={withdrawDisabled}
           className="flex-1 px-5 py-2.5 border border-teal-400/30 text-teal-400 font-body font-semibold rounded-lg hover:bg-teal-400/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          Unstake
+          Withdraw
         </button>
       </div>
     </div>

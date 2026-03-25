@@ -1,8 +1,8 @@
 import { BrowserProvider } from 'ethers'
-import type { StakingProvider } from './types'
+import type { LockBoxProvider } from './types'
 import { PENDING_DELAY_MS } from './constants'
 
-export class ControlledProvider implements StakingProvider {
+export class ControlledProvider implements LockBoxProvider {
   private balance = 0
 
   private async requestSignature(message: string): Promise<void> {
@@ -15,14 +15,14 @@ export class ControlledProvider implements StakingProvider {
     return new Promise((resolve) => setTimeout(resolve, PENDING_DELAY_MS))
   }
 
-  async stake(amount: string): Promise<void> {
-    await this.requestSignature(`Stake ${amount} ETH`)
+  async deposit(amount: string): Promise<void> {
+    await this.requestSignature(`Deposit ${amount} ETH`)
     await this.delay()
     this.balance = parseFloat((this.balance + parseFloat(amount)).toFixed(10))
   }
 
-  async unstake(): Promise<void> {
-    await this.requestSignature(`Unstake ${this.balance} ETH`)
+  async withdraw(): Promise<void> {
+    await this.requestSignature(`Withdraw ${this.balance} ETH`)
     await this.delay()
     this.balance = 0
   }

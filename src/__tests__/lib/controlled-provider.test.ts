@@ -25,51 +25,51 @@ describe('ControlledProvider', () => {
     expect(await provider.getBalance()).toBe('0')
   })
 
-  it('increases balance on stake approval', async () => {
+  it('increases balance on deposit approval', async () => {
     mockSigner.signMessage.mockResolvedValueOnce('0xsignature')
     const provider = new ControlledProvider()
 
-    await provider.stake('0.5')
+    await provider.deposit('0.5')
 
     expect(await provider.getBalance()).toBe('0.5')
     expect(mockSigner.signMessage).toHaveBeenCalledOnce()
   })
 
-  it('throws on stake rejection', async () => {
+  it('throws on deposit rejection', async () => {
     mockSigner.signMessage.mockRejectedValueOnce(new Error('user rejected'))
     const provider = new ControlledProvider()
 
-    await expect(provider.stake('0.5')).rejects.toThrow()
+    await expect(provider.deposit('0.5')).rejects.toThrow()
     expect(await provider.getBalance()).toBe('0')
   })
 
-  it('accumulates balance across multiple stakes', async () => {
+  it('accumulates balance across multiple deposits', async () => {
     mockSigner.signMessage.mockResolvedValue('0xsig')
     const provider = new ControlledProvider()
 
-    await provider.stake('0.1')
-    await provider.stake('0.2')
+    await provider.deposit('0.1')
+    await provider.deposit('0.2')
 
     expect(await provider.getBalance()).toBe('0.3')
   })
 
-  it('resets balance to 0 on unstake', async () => {
+  it('resets balance to 0 on withdraw', async () => {
     mockSigner.signMessage.mockResolvedValue('0xsig')
     const provider = new ControlledProvider()
 
-    await provider.stake('0.5')
-    await provider.unstake()
+    await provider.deposit('0.5')
+    await provider.withdraw()
 
     expect(await provider.getBalance()).toBe('0')
   })
 
-  it('throws on unstake rejection', async () => {
+  it('throws on withdraw rejection', async () => {
     mockSigner.signMessage.mockResolvedValueOnce('0xsig')
     mockSigner.signMessage.mockRejectedValueOnce(new Error('user rejected'))
     const provider = new ControlledProvider()
 
-    await provider.stake('0.5')
-    await expect(provider.unstake()).rejects.toThrow()
+    await provider.deposit('0.5')
+    await expect(provider.withdraw()).rejects.toThrow()
     expect(await provider.getBalance()).toBe('0.5')
   })
 })

@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { useStaking } from '../../hooks/useStaking'
+import { useLockBox } from '../../hooks/useLockBox'
 import { AppState } from '../../lib/types'
-import type { StakingProvider } from '../../lib/types'
+import type { LockBoxProvider } from '../../lib/types'
 
-function mockProvider(overrides: Partial<StakingProvider> = {}): StakingProvider {
+function mockProvider(overrides: Partial<LockBoxProvider> = {}): LockBoxProvider {
   return {
-    stake: vi.fn().mockResolvedValue(undefined),
-    unstake: vi.fn().mockResolvedValue(undefined),
+    deposit: vi.fn().mockResolvedValue(undefined),
+    withdraw: vi.fn().mockResolvedValue(undefined),
     getBalance: vi.fn().mockResolvedValue('0'),
     ...overrides,
   }
@@ -17,10 +17,10 @@ beforeEach(() => {
   vi.useFakeTimers()
 })
 
-describe('useStaking', () => {
+describe('useLockBox', () => {
   it('starts in disconnected state when not connected', () => {
     const { result } = renderHook(() =>
-      useStaking({ provider: null, isConnected: false, isSupported: false }),
+      useLockBox({ provider: null, isConnected: false, isSupported: false }),
     )
     expect(result.current.appState).toBe(AppState.Disconnected)
     expect(result.current.balance).toBe('0')
@@ -28,40 +28,40 @@ describe('useStaking', () => {
 
   it('moves to unsupported-network when connected but not supported', () => {
     const { result } = renderHook(() =>
-      useStaking({ provider: mockProvider(), isConnected: true, isSupported: false }),
+      useLockBox({ provider: mockProvider(), isConnected: true, isSupported: false }),
     )
     expect(result.current.appState).toBe(AppState.UnsupportedNetwork)
   })
 
   it('moves to idle when connected and supported', () => {
     const { result } = renderHook(() =>
-      useStaking({ provider: mockProvider(), isConnected: true, isSupported: true }),
+      useLockBox({ provider: mockProvider(), isConnected: true, isSupported: true }),
     )
     expect(result.current.appState).toBe(AppState.Idle)
   })
 
-  it('transitions to pending then confirmed on successful stake', async () => {
-    let resolveStake!: () => void
-    const stakePromise = new Promise<void>((resolve) => { resolveStake = resolve })
+  it('transitions to pending then confirmed on successful deposit', async () => {
+    let resolveDeposit!: () => void
+    const depositPromise = new Promise<void>((resolve) => { resolveDeposit = resolve })
     const provider = mockProvider({
-      stake: vi.fn().mockReturnValue(stakePromise),
+      deposit: vi.fn().mockReturnValue(depositPromise),
       getBalance: vi.fn().mockResolvedValue('0.5'),
     })
     const { result } = renderHook(() =>
-      useStaking({ provider, isConnected: true, isSupported: true }),
+      useLockBox({ provider, isConnected: true, isSupported: true }),
     )
 
-    // Start stake but don't resolve yet
-    let stakeCallPromise!: Promise<void>
+    // Start deposit but don't resolve yet
+    let depositCallPromise!: Promise<void>
     act(() => {
-      stakeCallPromise = result.current.stake('0.5')
+      depositCallPromise = result.current.deposit('0.5')
     })
     expect(result.current.appState).toBe(AppState.Pending)
 
-    // Now resolve the stake
+    // Now resolve the deposit
     await act(async () => {
-      resolveStake()
-      await stakeCallPromise
+      resolveDeposit()
+      await depositCallPromise
     })
 
     expect(result.current.appState).toBe(AppState.Confirmed)
@@ -73,16 +73,16 @@ describe('useStaking', () => {
     expect(result.current.appState).toBe(AppState.Idle)
   })
 
-  it('transitions to rejected on stake rejection', async () => {
+  it('transitions to rejected on deposit rejection', async () => {
     const provider = mockProvider({
-      stake: vi.fn().mockRejectedValue(new Error('user rejected')),
+      deposit: vi.fn().mockRejectedValue(new Error('user rejected')),
     })
     const { result } = renderHook(() =>
-      useStaking({ provider, isConnected: true, isSupported: true }),
+      useLockBox({ provider, isConnected: true, isSupported: true }),
     )
 
     await act(async () => {
-      await result.current.stake('0.5')
+      await result.current.deposit('0.5')
     })
 
     expect(result.current.appState).toBe(AppState.Rejected)
@@ -93,72 +93,72 @@ describe('useStaking', () => {
     expect(result.current.appState).toBe(AppState.Idle)
   })
 
-  it('updates status messages correctly through stake lifecycle', async () => {
-    let resolveStake!: () => void
-    const stakePromise = new Promise<void>((resolve) => { resolveStake = resolve })
+  it('updates status messages correctly through deposit lifecycle', async () => {
+    let resolveDeposit!: () => void
+    const depositPromise = new Promise<void>((resolve) => { resolveDeposit = resolve })
     const provider = mockProvider({
-      stake: vi.fn().mockReturnValue(stakePromise),
+      deposit: vi.fn().mockReturnValue(depositPromise),
       getBalance: vi.fn().mockResolvedValue('0.1'),
     })
     const { result } = renderHook(() =>
-      useStaking({ provider, isConnected: true, isSupported: true }),
+      useLockBox({ provider, isConnected: true, isSupported: true }),
     )
 
-    let stakeCallPromise!: Promise<void>
+    let depositCallPromise!: Promise<void>
     act(() => {
-      stakeCallPromise = result.current.stake('0.1')
+      depositCallPromise = result.current.deposit('0.1')
     })
-    expect(result.current.statusMessage).toBe('Processing stake...')
+    expect(result.current.statusMessage).toBe('Processing deposit...')
 
     await act(async () => {
-      resolveStake()
-      await stakeCallPromise
+      resolveDeposit()
+      await depositCallPromise
     })
 
-    expect(result.current.lastAction).toBe('Stake confirmed for 0.1 ETH')
+    expect(result.current.lastAction).toBe('Deposit confirmed for 0.1 ETH')
   })
 
   it('shows rejection message on rejection', async () => {
     const provider = mockProvider({
-      stake: vi.fn().mockRejectedValue(new Error('rejected')),
+      deposit: vi.fn().mockRejectedValue(new Error('rejected')),
     })
     const { result } = renderHook(() =>
-      useStaking({ provider, isConnected: true, isSupported: true }),
+      useLockBox({ provider, isConnected: true, isSupported: true }),
     )
 
     await act(async () => {
-      await result.current.stake('0.5')
+      await result.current.deposit('0.5')
     })
 
     expect(result.current.lastAction).toBe('Transaction rejected')
   })
 
-  it('transitions through unstake lifecycle: pending -> confirmed -> idle', async () => {
-    let resolveUnstake!: () => void
-    const unstakePromise = new Promise<void>((resolve) => { resolveUnstake = resolve })
+  it('transitions through withdraw lifecycle: pending -> confirmed -> idle', async () => {
+    let resolveWithdraw!: () => void
+    const withdrawPromise = new Promise<void>((resolve) => { resolveWithdraw = resolve })
     const provider = mockProvider({
-      unstake: vi.fn().mockReturnValue(unstakePromise),
+      withdraw: vi.fn().mockReturnValue(withdrawPromise),
       getBalance: vi.fn().mockResolvedValue('0'),
     })
     const { result } = renderHook(() =>
-      useStaking({ provider, isConnected: true, isSupported: true }),
+      useLockBox({ provider, isConnected: true, isSupported: true }),
     )
 
-    let unstakeCallPromise!: Promise<void>
+    let withdrawCallPromise!: Promise<void>
     act(() => {
-      unstakeCallPromise = result.current.unstake()
+      withdrawCallPromise = result.current.withdraw()
     })
     expect(result.current.appState).toBe(AppState.Pending)
-    expect(result.current.statusMessage).toBe('Processing unstake...')
+    expect(result.current.statusMessage).toBe('Processing withdrawal...')
 
     await act(async () => {
-      resolveUnstake()
-      await unstakeCallPromise
+      resolveWithdraw()
+      await withdrawCallPromise
     })
 
     expect(result.current.appState).toBe(AppState.Confirmed)
     expect(result.current.balance).toBe('0')
-    expect(result.current.lastAction).toBe('Unstake confirmed')
+    expect(result.current.lastAction).toBe('Withdrawal confirmed')
 
     act(() => {
       vi.advanceTimersByTime(5000)
@@ -166,45 +166,45 @@ describe('useStaking', () => {
     expect(result.current.appState).toBe(AppState.Idle)
   })
 
-  it('transitions to rejected on unstake rejection', async () => {
+  it('transitions to rejected on withdraw rejection', async () => {
     const provider = mockProvider({
-      unstake: vi.fn().mockRejectedValue(new Error('user rejected')),
+      withdraw: vi.fn().mockRejectedValue(new Error('user rejected')),
       getBalance: vi.fn().mockResolvedValue('0.5'),
     })
     const { result } = renderHook(() =>
-      useStaking({ provider, isConnected: true, isSupported: true }),
+      useLockBox({ provider, isConnected: true, isSupported: true }),
     )
 
     await act(async () => {
-      await result.current.unstake()
+      await result.current.withdraw()
     })
 
     expect(result.current.appState).toBe(AppState.Rejected)
     expect(result.current.lastAction).toBe('Transaction rejected')
   })
 
-  it('preserves balance after stake rejection when balance > 0', async () => {
+  it('preserves balance after deposit rejection when balance > 0', async () => {
     let currentBalance = '0'
     const provider = mockProvider({
-      stake: vi.fn()
+      deposit: vi.fn()
         .mockResolvedValueOnce(undefined)
         .mockRejectedValueOnce(new Error('rejected')),
       getBalance: vi.fn().mockImplementation(() => Promise.resolve(currentBalance)),
     })
     const { result } = renderHook(() =>
-      useStaking({ provider, isConnected: true, isSupported: true }),
+      useLockBox({ provider, isConnected: true, isSupported: true }),
     )
 
     currentBalance = '0.5'
     await act(async () => {
-      await result.current.stake('0.5')
+      await result.current.deposit('0.5')
     })
     expect(result.current.balance).toBe('0.5')
 
     act(() => { vi.advanceTimersByTime(5000) })
 
     await act(async () => {
-      await result.current.stake('0.3')
+      await result.current.deposit('0.3')
     })
     expect(result.current.balance).toBe('0.5')
     expect(result.current.appState).toBe(AppState.Rejected)

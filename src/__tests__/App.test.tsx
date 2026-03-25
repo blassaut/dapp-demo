@@ -23,9 +23,9 @@ describe('App', () => {
     expect(screen.getByTestId('wallet-not-detected')).toBeInTheDocument()
   })
 
-  it('renders the staking balance', () => {
+  it('renders the lockbox balance', () => {
     render(<App />)
-    expect(screen.getByTestId('staking-balance')).toBeInTheDocument()
+    expect(screen.getByTestId('lockbox-balance')).toBeInTheDocument()
   })
 
   it('renders the status panel', () => {
@@ -33,14 +33,14 @@ describe('App', () => {
     expect(screen.getByTestId('status-panel')).toBeInTheDocument()
   })
 
-  it('renders stake and unstake buttons', () => {
+  it('renders deposit and withdraw buttons', () => {
     render(<App />)
-    expect(screen.getByTestId('staking-button-stake')).toBeInTheDocument()
-    expect(screen.getByTestId('staking-button-unstake')).toBeInTheDocument()
+    expect(screen.getByTestId('lockbox-button-deposit')).toBeInTheDocument()
+    expect(screen.getByTestId('lockbox-button-withdraw')).toBeInTheDocument()
   })
 
   it('renders amount input', () => {
     render(<App />)
-    expect(screen.getByTestId('staking-input-amount')).toBeInTheDocument()
+    expect(screen.getByTestId('lockbox-input-amount')).toBeInTheDocument()
   })
 })

@@ -1,15 +1,15 @@
 import { useMemo } from 'react'
 import { useWallet } from './hooks/useWallet'
 import { useNetwork } from './hooks/useNetwork'
-import { useStaking } from './hooks/useStaking'
+import { useLockBox } from './hooks/useLockBox'
 import { ControlledProvider } from './lib/controlled-provider'
 import { AppState } from './lib/types'
 
 import { ConnectWallet } from './components/ConnectWallet'
 import { NetworkChip } from './components/NetworkChip'
 import { NetworkBanner } from './components/NetworkBanner'
-import { StakedBalance } from './components/StakedBalance'
-import { StakeForm } from './components/StakeForm'
+import { LockedBalance } from './components/LockedBalance'
+import { DepositForm } from './components/DepositForm'
 import { StatusPanel } from './components/StatusPanel'
 
 export default function App() {
@@ -23,7 +23,7 @@ export default function App() {
     return new ControlledProvider()
   }, [isConnected])
 
-  const { balance, appState, statusMessage, lastAction, stake, unstake } = useStaking({
+  const { balance, appState, statusMessage, lastAction, deposit, withdraw } = useLockBox({
     provider,
     isConnected,
     isSupported,
@@ -42,7 +42,7 @@ export default function App() {
       <div className="w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-heading font-bold text-light">Staking Demo</h1>
+          <h1 className="text-2xl font-heading font-bold text-light">LockBox Demo</h1>
           <p className="text-xs font-mono text-muted/40">
             {isConnected ? `Connected on ${networkName ?? 'unknown'}` : 'Connect your wallet to begin'}
           </p>
@@ -60,16 +60,16 @@ export default function App() {
         )}
 
         {/* Balance */}
-        <StakedBalance balance={balance} />
+        <LockedBalance balance={balance} />
 
         {/* Form */}
-        <StakeForm
+        <DepositForm
           appState={appState}
           balance={balance}
           isConnected={isConnected}
           isSupported={isSupported}
-          onStake={stake}
-          onUnstake={unstake}
+          onDeposit={deposit}
+          onWithdraw={withdraw}
         />
 
         {/* Status */}
