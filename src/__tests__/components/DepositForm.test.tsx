@@ -47,9 +47,16 @@ describe('DepositForm', () => {
     expect(screen.getByTestId('lockbox-button-withdraw')).toBeDisabled()
   })
 
-  it('enables withdraw button when balance > 0 on supported network', () => {
+  it('enables withdraw button when amount <= balance on supported network', () => {
     render(<DepositForm {...defaultProps} balance="0.5" />)
+    fireEvent.change(screen.getByTestId('lockbox-input-amount'), { target: { value: '0.3' } })
     expect(screen.getByTestId('lockbox-button-withdraw')).toBeEnabled()
+  })
+
+  it('disables withdraw button when amount > balance', () => {
+    render(<DepositForm {...defaultProps} balance="0.5" />)
+    fireEvent.change(screen.getByTestId('lockbox-input-amount'), { target: { value: '1.0' } })
+    expect(screen.getByTestId('lockbox-button-withdraw')).toBeDisabled()
   })
 
   it('disables withdraw button on unsupported network even with balance', () => {
@@ -74,11 +81,12 @@ describe('DepositForm', () => {
     expect(onDeposit).toHaveBeenCalledWith('0.5')
   })
 
-  it('calls onWithdraw when withdraw button clicked', () => {
+  it('calls onWithdraw with amount when withdraw button clicked', () => {
     const onWithdraw = vi.fn()
     render(<DepositForm {...defaultProps} balance="0.5" onWithdraw={onWithdraw} />)
+    fireEvent.change(screen.getByTestId('lockbox-input-amount'), { target: { value: '0.3' } })
     fireEvent.click(screen.getByTestId('lockbox-button-withdraw'))
-    expect(onWithdraw).toHaveBeenCalledOnce()
+    expect(onWithdraw).toHaveBeenCalledWith('0.3')
   })
 
   it('clears amount input after successful deposit (confirmed state)', () => {

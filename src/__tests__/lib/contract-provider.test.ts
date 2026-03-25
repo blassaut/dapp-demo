@@ -49,7 +49,7 @@ describe('ContractProvider', () => {
 
   it('calls contract.withdraw and waits for tx', async () => {
     const provider = new ContractProvider(FAKE_ADDRESS)
-    await provider.withdraw()
+    await provider.withdraw('0.5')
 
     expect(mockWithdraw).toHaveBeenCalledOnce()
     expect(mockWait).toHaveBeenCalled()
@@ -84,6 +84,6 @@ describe('ContractProvider', () => {
     mockWithdraw.mockRejectedValueOnce(new Error('user rejected'))
 
     const provider = new ContractProvider(FAKE_ADDRESS)
-    await expect(provider.withdraw()).rejects.toThrow('user rejected')
+    await expect(provider.withdraw('0.5')).rejects.toThrow('user rejected')
   })
 })

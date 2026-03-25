@@ -3,7 +3,7 @@ import type { LockBoxProvider } from './types'
 
 const LOCKBOX_ABI = [
   'function deposit() external payable',
-  'function withdraw() external',
+  'function withdraw(uint256 amount) external',
   'function balanceOf(address account) external view returns (uint256)',
 ]
 
@@ -29,9 +29,9 @@ export class ContractProvider implements LockBoxProvider {
     return tx.hash
   }
 
-  async withdraw(): Promise<string> {
+  async withdraw(amount: string): Promise<string> {
     const { contract } = await this.getContract()
-    const tx = await contract.withdraw()
+    const tx = await contract.withdraw(parseEther(amount))
     await tx.wait()
     return tx.hash
   }

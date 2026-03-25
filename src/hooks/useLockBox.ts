@@ -65,18 +65,18 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
     [provider, returnToIdle],
   )
 
-  const withdraw = useCallback(async () => {
+  const withdraw = useCallback(async (amount: string) => {
     if (!provider) return
     setAppState(AppState.Pending)
     setStatusMessage('Processing withdrawal...')
 
     try {
-      const txHash = await provider.withdraw()
+      const txHash = await provider.withdraw(amount)
       const newBalance = await provider.getBalance()
       setBalance(newBalance)
       setAppState(AppState.Confirmed)
       setStatusMessage('')
-      setLastAction('Withdrawal confirmed')
+      setLastAction(`Withdrawal confirmed for ${amount} ETH`)
       setLastTxHash(txHash)
       returnToIdle()
     } catch {

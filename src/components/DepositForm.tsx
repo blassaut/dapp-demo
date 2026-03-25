@@ -7,7 +7,7 @@ interface DepositFormProps {
   isConnected: boolean
   isSupported: boolean
   onDeposit: (amount: string) => void
-  onWithdraw: () => void
+  onWithdraw: (amount: string) => void
 }
 
 export function DepositForm({
@@ -30,8 +30,10 @@ export function DepositForm({
 
   const isPending = appState === AppState.Pending
   const canInteract = isConnected && isSupported && !isPending
-  const depositDisabled = !canInteract || !amount || parseFloat(amount) <= 0
-  const withdrawDisabled = !canInteract || parseFloat(balance) <= 0
+  const parsedAmount = parseFloat(amount) || 0
+  const parsedBalance = parseFloat(balance) || 0
+  const depositDisabled = !canInteract || parsedAmount <= 0
+  const withdrawDisabled = !canInteract || parsedAmount <= 0 || parsedAmount > parsedBalance
 
   return (
     <div className="space-y-3">
@@ -63,11 +65,11 @@ export function DepositForm({
         </button>
         <button
           data-testid="lockbox-button-withdraw"
-          onClick={onWithdraw}
+          onClick={() => onWithdraw(amount)}
           disabled={withdrawDisabled}
           className="flex-1 px-5 py-3 border border-white/[0.08] text-light/70 font-body font-semibold text-sm rounded-xl hover:bg-white/[0.03] hover:border-white/[0.12] transition-all disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-white/[0.08]"
         >
-          {parseFloat(balance) > 0 ? `Withdraw ${balance}` : 'Withdraw'}
+          Withdraw
         </button>
       </div>
     </div>

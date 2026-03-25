@@ -13,10 +13,10 @@ contract LockBox {
         emit Deposited(msg.sender, msg.value);
     }
 
-    function withdraw() external {
-        uint256 amount = _balances[msg.sender];
-        require(amount > 0, "Nothing deposited");
-        _balances[msg.sender] = 0;
+    function withdraw(uint256 amount) external {
+        require(amount > 0, "Must withdraw > 0");
+        require(_balances[msg.sender] >= amount, "Insufficient balance");
+        _balances[msg.sender] -= amount;
         (bool success, ) = msg.sender.call{value: amount}("");
         require(success, "Transfer failed");
         emit Withdrawn(msg.sender, amount);

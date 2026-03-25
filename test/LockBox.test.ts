@@ -35,13 +35,23 @@ describe('LockBox', () => {
     assert.equal(balance, ethers.parseEther('0.8'))
   })
 
-  it('withdraws full balance back to sender', async () => {
+  it('withdraws specified amount', async () => {
+    const { lockbox, ethers } = await deployFixture()
+    const [owner] = await ethers.getSigners()
+    await lockbox.deposit({ value: ethers.parseEther('1.0') })
+
+    await lockbox.withdraw(ethers.parseEther('0.4'))
+
+    assert.equal(await lockbox.balanceOf(owner.address), ethers.parseEther('0.6'))
+  })
+
+  it('withdraws full balance', async () => {
     const { lockbox, ethers } = await deployFixture()
     const [owner] = await ethers.getSigners()
     await lockbox.deposit({ value: ethers.parseEther('1.0') })
 
     const balanceBefore = await ethers.provider.getBalance(owner.address)
-    const tx = await lockbox.withdraw()
+    const tx = await lockbox.withdraw(ethers.parseEther('1.0'))
     const receipt = await tx.wait()
     const gasUsed = receipt!.gasUsed * receipt!.gasPrice
     const balanceAfter = await ethers.provider.getBalance(owner.address)
@@ -50,13 +60,26 @@ describe('LockBox', () => {
     assert.equal(await lockbox.balanceOf(owner.address), 0n)
   })
 
-  it('reverts withdraw when nothing deposited', async () => {
-    const { lockbox } = await deployFixture()
+  it('reverts withdraw when insufficient balance', async () => {
+    const { lockbox, ethers } = await deployFixture()
+    await lockbox.deposit({ value: ethers.parseEther('0.5') })
     await assert.rejects(
-      async () => { await lockbox.withdraw() },
+      async () => { await lockbox.withdraw(ethers.parseEther('1.0')) },
       (error: unknown) => {
         const msg = (error as Error).message
-        return msg.includes('Nothing deposited')
+        return msg.includes('Insufficient balance')
+      }
+    )
+  })
+
+  it('reverts withdraw with zero amount', async () => {
+    const { lockbox, ethers } = await deployFixture()
+    await lockbox.deposit({ value: ethers.parseEther('1.0') })
+    await assert.rejects(
+      async () => { await lockbox.withdraw(0n) },
+      (error: unknown) => {
+        const msg = (error as Error).message
+        return msg.includes('Must withdraw > 0')
       }
     )
   })
@@ -90,7 +113,6 @@ describe('LockBox', () => {
 
     await attacker.attack({ value: ethers.parseEther('1.0') })
 
-    // CEI pattern prevents double-withdraw: attacker balance should be 0
     assert.equal(await lockbox.balanceOf(await attacker.getAddress()), 0n)
   })
 })

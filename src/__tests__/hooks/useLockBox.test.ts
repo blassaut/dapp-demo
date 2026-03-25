@@ -146,7 +146,7 @@ describe('useLockBox', () => {
 
     let withdrawCallPromise!: Promise<void>
     act(() => {
-      withdrawCallPromise = result.current.withdraw()
+      withdrawCallPromise = result.current.withdraw('0.5')
     })
     expect(result.current.appState).toBe(AppState.Pending)
     expect(result.current.statusMessage).toBe('Processing withdrawal...')
@@ -158,7 +158,7 @@ describe('useLockBox', () => {
 
     expect(result.current.appState).toBe(AppState.Confirmed)
     expect(result.current.balance).toBe('0')
-    expect(result.current.lastAction).toBe('Withdrawal confirmed')
+    expect(result.current.lastAction).toBe('Withdrawal confirmed for 0.5 ETH')
 
     act(() => {
       vi.advanceTimersByTime(5000)
@@ -176,7 +176,7 @@ describe('useLockBox', () => {
     )
 
     await act(async () => {
-      await result.current.withdraw()
+      await result.current.withdraw('0.5')
     })
 
     expect(result.current.appState).toBe(AppState.Rejected)
