@@ -68,8 +68,8 @@ export default function App() {
       <div className="w-full max-w-sm">
         {/* Billboard */}
         <div className="text-center mb-3">
-          <h1 className="text-lg font-heading font-bold text-light mb-0.5">Real on-chain flow — tested end-to-end</h1>
-          <p className="text-[11px] font-mono text-teal-400/50">Not mocked · real transactions (Hoodi testnet) · fully e2e tested</p>
+          <h1 className="text-lg font-heading font-bold text-light mb-0.5">On-chain flow — tested end-to-end</h1>
+          <p className="text-[11px] font-mono text-teal-400/50">Live transactions on Hoodi testnet</p>
           <p className="text-xs font-mono text-muted/50 mt-2">Try it ↓</p>
         </div>
 
