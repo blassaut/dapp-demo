@@ -29,13 +29,7 @@ export default function App() {
     isSupported,
   })
 
-  const currentStatus =
-    statusMessage ||
-    (appState === AppState.Idle && isConnected
-      ? `Connected on ${networkName ?? 'unknown'}`
-      : appState === AppState.UnsupportedNetwork
-        ? `Connected on ${networkName ?? 'unknown'}`
-        : '')
+  const currentStatus = statusMessage || ''
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
