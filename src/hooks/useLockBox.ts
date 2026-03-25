@@ -17,6 +17,7 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
   const [lastTxHash, setLastTxHash] = useState<string | null>(null)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Derive base state from connection/network
   useEffect(() => {
     if (!isConnected) {
       setAppState(AppState.Disconnected)
@@ -31,6 +32,12 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
       setStatusMessage('')
     }
   }, [isConnected, isSupported])
+
+  // Fetch locked balance on connect
+  useEffect(() => {
+    if (!provider || !isConnected || !isSupported) return
+    provider.getBalance().then(setBalance).catch(() => {})
+  }, [provider, isConnected, isSupported])
 
   const returnToIdle = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
