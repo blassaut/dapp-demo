@@ -11,9 +11,10 @@
  */
 import { spawn, execSync, type ChildProcess } from 'child_process'
 import { writeFileSync } from 'fs'
-import { resolve } from 'path'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
 
-const ROOT = resolve(__dirname, '..')
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 let hardhatProcess: ChildProcess | null = null
 
 function waitForHardhatNode(timeoutMs = 20_000): Promise<void> {
@@ -76,11 +77,8 @@ async function globalSetup(): Promise<void> {
   const contractAddress = addressMatch[0]
   console.log(`[e2e] LockBox deployed at ${contractAddress}`)
 
-  // Write .env.e2e so the Vite dev server picks up the contract address
+  // Write .env.e2e (not .env - never overwrite the user's Hoodi config)
   writeFileSync(resolve(ROOT, '.env.e2e'), `VITE_CONTRACT_ADDRESS=${contractAddress}\n`)
-
-  // Also write to .env so Vite loads it by default
-  writeFileSync(resolve(ROOT, '.env'), `VITE_CONTRACT_ADDRESS=${contractAddress}\n`)
 
   console.log('[e2e] Global setup complete')
 }

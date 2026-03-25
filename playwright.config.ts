@@ -15,7 +15,7 @@ export default defineConfig({
   workers: 1,
   reporter: [['html', { open: 'never' }]],
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost:5175',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     actionTimeout: 10_000,
@@ -31,9 +31,9 @@ export default defineConfig({
    * The Hardhat node + contract deployment are handled in global-setup.ts.
    */
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
+    command: 'npm run dev -- --mode e2e --port 5175',
+    url: 'http://localhost:5175',
+    reuseExistingServer: false,
     timeout: 30_000,
   },
   globalSetup: './e2e/global-setup.ts',

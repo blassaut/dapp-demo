@@ -9,7 +9,7 @@
  *   import { test } from './fixtures'
  *   const { Given, When, Then } = createBdd(test)
  */
-import { test as base } from '@playwright/test'
+import { test as base } from 'playwright-bdd'
 import { bootstrap, getWallet, MetaMaskWallet, type Dappwright } from '@tenkeylabs/dappwright'
 import type { BrowserContext } from 'playwright-core'
 

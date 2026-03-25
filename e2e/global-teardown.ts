@@ -2,9 +2,10 @@
  * Global teardown - kills the Hardhat node started during setup.
  */
 import { readFileSync, unlinkSync, existsSync } from 'fs'
-import { resolve } from 'path'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
 
-const ROOT = resolve(__dirname, '..')
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
 async function globalTeardown(): Promise<void> {
   const pidFile = resolve(ROOT, 'e2e/.hardhat-pid')
@@ -20,8 +21,8 @@ async function globalTeardown(): Promise<void> {
     unlinkSync(pidFile)
   }
 
-  // Clean up generated env file
-  const envFile = resolve(ROOT, '.env')
+  // Clean up generated e2e env file
+  const envFile = resolve(ROOT, '.env.e2e')
   if (existsSync(envFile)) {
     try {
       unlinkSync(envFile)
