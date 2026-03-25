@@ -1,8 +1,10 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest'
 import { render, screen } from '@testing-library/react'
 
-// Provide a valid contract address so App doesn't render ConfigError
-import.meta.env.VITE_CONTRACT_ADDRESS = '0x' + '1'.repeat(40)
+// Stub VITE_CONTRACT_ADDRESS before App module is loaded,
+// otherwise hasAnyValidAddress (evaluated at module scope) is false
+// and App renders ConfigError instead of the wallet UI.
+vi.stubEnv('VITE_CONTRACT_ADDRESS', '0x' + '1'.repeat(40))
 
 beforeAll(() => {
   global.IntersectionObserver = class {
@@ -18,7 +20,7 @@ beforeAll(() => {
   })
 })
 
-import App from '../App'
+const { default: App } = await import('../App')
 
 describe('App - disconnected state', () => {
   it('renders wallet-not-detected when no wallet is available', () => {
