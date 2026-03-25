@@ -190,6 +190,26 @@ Then('the Withdraw button should be disabled', async ({ page }) => {
   await expect(page.getByTestId('lockbox-button-withdraw')).toBeDisabled()
 })
 
+Then('I should see the deposit hint showing the max wallet balance', async ({ page }) => {
+  const hint = page.getByTestId('deposit-hint')
+  await expect(hint).toBeVisible()
+  await expect(hint).toHaveText(/Max deposit: .+ ETH/)
+})
+
+Then('I should see the withdraw hint showing the max locked balance', async ({ page }) => {
+  const hint = page.getByTestId('withdraw-hint')
+  await expect(hint).toBeVisible()
+  await expect(hint).toHaveText(/Max withdraw: .+ ETH/)
+})
+
+Then('the contract balance should show a non-zero value', async ({ page }) => {
+  await expect(async () => {
+    const text = await page.getByTestId('contract-balance').textContent()
+    const amount = parseFloat((text ?? '0').replace(/[^0-9.]/g, ''))
+    expect(amount).toBeGreaterThan(0)
+  }).toPass({ timeout: 30_000 })
+})
+
 Then('my locked balance should be unchanged', async ({ page }) => {
   const snapshotBalance = balanceSnapshots.get(page)
   if (snapshotBalance) {

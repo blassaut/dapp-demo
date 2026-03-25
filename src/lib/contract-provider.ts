@@ -5,6 +5,7 @@ const LOCKBOX_ABI = [
   'function deposit() external payable',
   'function withdraw(uint256 amount) external',
   'function balanceOf(address account) external view returns (uint256)',
+  'function contractBalance() external view returns (uint256)',
   'event Deposited(address indexed user, uint256 amount)',
   'event Withdrawn(address indexed user, uint256 amount)',
 ]
@@ -43,6 +44,12 @@ export class ContractProvider implements LockBoxProvider {
   async getBalance(): Promise<string> {
     const { contract, address } = await this.getContract()
     const balance = await contract.balanceOf(address)
+    return formatEther(balance)
+  }
+
+  async getContractBalance(): Promise<string> {
+    const { contract } = await this.getContract()
+    const balance = await contract.contractBalance()
     return formatEther(balance)
   }
 
