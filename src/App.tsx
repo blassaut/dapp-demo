@@ -81,9 +81,7 @@ export default function App() {
               <h1 className="text-lg font-heading font-bold text-light">LockBox</h1>
               {isConnected && <NetworkChip networkName={networkName} isSupported={isSupported} />}
             </div>
-            {!isConnected && (
-              <p className="text-xs font-mono text-muted/40 mt-1">Connect your wallet to begin</p>
-            )}
+
           </div>
 
           {/* Card body */}

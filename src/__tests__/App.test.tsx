@@ -48,8 +48,5 @@ describe('App - disconnected state', () => {
     expect(screen.queryByTestId('lockbox-button-withdraw')).not.toBeInTheDocument()
   })
 
-  it('shows connect prompt text', () => {
-    render(<App />)
-    expect(screen.getByText('Connect your wallet to begin')).toBeInTheDocument()
-  })
+
 })
