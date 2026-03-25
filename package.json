@@ -13,6 +13,7 @@
     "deploy": "hardhat run scripts/deploy.ts --network localhost"
   },
   "dependencies": {
+    "dotenv": "^17.3.1",
     "ethers": "^6.13.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
