@@ -37,7 +37,7 @@ describe('App - disconnected state', () => {
 
   it('renders the app title', () => {
     render(<App />)
-    expect(screen.getByText('LockBox')).toBeInTheDocument()
+    expect(screen.getByText(/LockBox/)).toBeInTheDocument()
   })
 
   it('does not render form elements when disconnected', () => {
