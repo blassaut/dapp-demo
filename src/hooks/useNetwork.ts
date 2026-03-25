@@ -47,7 +47,8 @@ export function useNetwork(isConnected: boolean, provider: Eip1193Provider | nul
     fetchChainId()
 
     const handleChainChanged = (newChainId: unknown) => {
-      setChainId(parseInt(newChainId as string, 16))
+      const raw = newChainId as string
+      setChainId(raw.startsWith('0x') ? parseInt(raw, 16) : Number(raw))
     }
 
     // Re-check chain when tab regains focus (MetaMask may not fire

@@ -53,4 +53,49 @@ describe('useNetwork', () => {
     expect(result.current.isSupported).toBe(false)
     expect(result.current.networkName).not.toBeNull()
   })
+
+  it('handles hex chainChanged event (e.g. "0x88BB0")', async () => {
+    mockRequest.mockResolvedValueOnce('0x1')
+    const { result } = renderHook(() => useNetwork(true, mockProvider))
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0))
+    })
+
+    // Grab the chainChanged handler registered via provider.on
+    const chainChangedHandler = mockOn.mock.calls.find(
+      ([event]) => event === 'chainChanged',
+    )?.[1]
+    expect(chainChangedHandler).toBeDefined()
+
+    act(() => {
+      chainChangedHandler('0x88BB0')
+    })
+
+    expect(result.current.chainId).toBe(560048)
+    expect(result.current.isSupported).toBe(true)
+    expect(result.current.networkName).toBe('Ethereum Hoodi')
+  })
+
+  it('handles decimal chainChanged event (e.g. "560048")', async () => {
+    mockRequest.mockResolvedValueOnce('0x1')
+    const { result } = renderHook(() => useNetwork(true, mockProvider))
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0))
+    })
+
+    const chainChangedHandler = mockOn.mock.calls.find(
+      ([event]) => event === 'chainChanged',
+    )?.[1]
+    expect(chainChangedHandler).toBeDefined()
+
+    act(() => {
+      chainChangedHandler('560048')
+    })
+
+    expect(result.current.chainId).toBe(560048)
+    expect(result.current.isSupported).toBe(true)
+    expect(result.current.networkName).toBe('Ethereum Hoodi')
+  })
 })
