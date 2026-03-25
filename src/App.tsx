@@ -55,20 +55,23 @@ export default function App() {
       {/* Main card */}
       <div className="w-full max-w-sm">
         {/* Description */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-3">
           <h1 className="text-lg font-heading font-bold text-light mb-2">On-chain deposit & withdraw flow</h1>
-          <p className="text-xs font-body text-muted/50 leading-relaxed mb-3">
+          <p className="text-xs font-body text-muted/30 leading-relaxed mb-2">
             End-to-end flow: wallet connection, MetaMask confirmation, on-chain transaction, and UI state synchronization - including history and recovery.
           </p>
-          <p className="text-[10px] font-mono text-teal-400/40">
+          <p className="text-[11px] font-mono text-teal-400/50">
             No mocks · real transactions on Hoodi testnet
           </p>
-          <p className="text-[10px] font-mono text-teal-400/40 mt-1">
+          <p className="text-[11px] font-mono text-teal-400/50 mt-0.5">
+            Live demo — no real funds required
+          </p>
+          <p className="text-[11px] font-mono text-teal-400/50 mt-0.5">
             Fully covered by end-to-end tests
           </p>
         </div>
 
-        <div className="rounded-2xl border border-white/[0.06] bg-dark-800/40 backdrop-blur-sm overflow-hidden">
+        <div className="rounded-2xl border border-white/[0.08] bg-dark-800/50 backdrop-blur-sm overflow-hidden shadow-[0_0_40px_rgba(20,184,166,0.04)] hover:shadow-[0_0_60px_rgba(20,184,166,0.08)] hover:border-white/[0.12] hover:-translate-y-0.5 transition-all duration-300">
           {/* Card header */}
           <div className="px-6 pt-6 pb-4 border-b border-white/[0.04]">
             <div className="flex items-center justify-between">
