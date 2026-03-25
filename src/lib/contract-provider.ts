@@ -1,4 +1,4 @@
-import { BrowserProvider, Contract, formatEther, parseEther, EventLog } from 'ethers'
+import { BrowserProvider, JsonRpcProvider, Contract, formatEther, parseEther, EventLog } from 'ethers'
 import type { Eip1193Provider, LockBoxProvider, TxRecord } from './types'
 
 const LOCKBOX_ABI = [
@@ -13,10 +13,12 @@ const LOCKBOX_ABI = [
 export class ContractProvider implements LockBoxProvider {
   private contractAddress: string
   private eip1193Provider: Eip1193Provider
+  private rpcUrl: string
 
-  constructor(contractAddress: string, eip1193Provider: Eip1193Provider) {
+  constructor(contractAddress: string, eip1193Provider: Eip1193Provider, rpcUrl: string) {
     this.contractAddress = contractAddress
     this.eip1193Provider = eip1193Provider
+    this.rpcUrl = rpcUrl
   }
 
   private async getContract() {
@@ -54,24 +56,24 @@ export class ContractProvider implements LockBoxProvider {
   }
 
   async getHistory(): Promise<TxRecord[]> {
-    const { contract, address, provider } = await this.getContract()
+    const { address } = await this.getContract()
     const records: TxRecord[] = []
 
-    // Limit block range to avoid RPC failures on public nodes
-    let fromBlock = 0
-    try {
-      const currentBlock = await provider.getBlockNumber()
-      fromBlock = Math.max(0, currentBlock - 50_000)
-    } catch {
-      // Fall back to scanning from block 0
-    }
+    // Use a direct JSON-RPC provider for event queries — some wallets
+    // (e.g. Rabby) don't support eth_getLogs via their injected provider.
+    const rpcProvider = new JsonRpcProvider(this.rpcUrl)
+    const readContract = new Contract(this.contractAddress, LOCKBOX_ABI, rpcProvider)
 
-    const depositFilter = contract.filters.Deposited(address)
-    const withdrawFilter = contract.filters.Withdrawn(address)
+    // Public RPCs limit eth_getLogs to 50k blocks per request.
+    const currentBlock = await rpcProvider.getBlockNumber()
+    const fromBlock = Math.max(0, currentBlock - 29_999)
+
+    const depositFilter = readContract.filters.Deposited(address)
+    const withdrawFilter = readContract.filters.Withdrawn(address)
 
     const [depositEvents, withdrawEvents] = await Promise.all([
-      contract.queryFilter(depositFilter, fromBlock),
-      contract.queryFilter(withdrawFilter, fromBlock),
+      readContract.queryFilter(depositFilter, fromBlock, currentBlock),
+      readContract.queryFilter(withdrawFilter, fromBlock, currentBlock),
     ])
 
     for (const event of depositEvents) {
