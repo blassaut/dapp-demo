@@ -103,10 +103,6 @@ export default function App() {
           )}
         </div>
 
-        {/* Subtle footer text */}
-        <p className="text-center text-[10px] font-mono text-muted/20 mt-4">
-          Demo mode - wallet interaction is real, balances are simulated
-        </p>
       </div>
     </div>
   )
