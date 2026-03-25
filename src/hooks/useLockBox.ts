@@ -81,7 +81,7 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
         returnToIdle()
       }
     },
-    [provider, returnToIdle],
+    [provider, returnToIdle, refreshHistory],
   )
 
   const withdraw = useCallback(async (amount: string) => {

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { parseEther } from 'ethers'
 import { AppState } from '../lib/types'
 
 interface DepositFormProps {
@@ -31,9 +32,17 @@ export function DepositForm({
   const isPending = appState === AppState.Pending
   const canInteract = isConnected && isSupported && !isPending
   const parsedAmount = parseFloat(amount) || 0
-  const parsedBalance = parseFloat(balance) || 0
   const depositDisabled = !canInteract || parsedAmount <= 0
-  const exceedsBalance = parsedAmount > parsedBalance
+
+  // Use BigInt/wei comparison to avoid floating-point precision issues
+  let exceedsBalance = false
+  try {
+    if (amount && parsedAmount > 0) {
+      exceedsBalance = parseEther(amount) > parseEther(balance || '0')
+    }
+  } catch {
+    exceedsBalance = true
+  }
   const withdrawDisabled = !canInteract || parsedAmount <= 0 || exceedsBalance
   const withdrawTitle = exceedsBalance && parsedAmount > 0
     ? `Insufficient balance (max ${balance} ETH)`

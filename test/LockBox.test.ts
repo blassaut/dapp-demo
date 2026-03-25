@@ -107,12 +107,24 @@ describe('LockBox', () => {
 
   it('resists reentrancy on withdraw', async () => {
     const { lockbox, ethers } = await deployFixture()
+    const [, victim] = await ethers.getSigners()
+
+    // Victim deposits 2 ETH (funds the attacker should NOT be able to steal)
+    await lockbox.connect(victim).deposit({ value: ethers.parseEther('2.0') })
+
     const ReentrantFactory = await ethers.getContractFactory('ReentrantAttacker')
     const attacker = await ReentrantFactory.deploy(await lockbox.getAddress())
     await attacker.waitForDeployment()
 
+    // Attacker deposits 1 ETH then tries reentrancy during withdraw
     await attacker.attack({ value: ethers.parseEther('1.0') })
 
+    // Attacker's balance should be 0 (legitimate withdrawal succeeded)
     assert.equal(await lockbox.balanceOf(await attacker.getAddress()), 0n)
+    // Victim's funds should be untouched
+    assert.equal(await lockbox.balanceOf(victim.address), ethers.parseEther('2.0'))
+    // Contract should still hold exactly the victim's 2 ETH
+    const contractBalance = await ethers.provider.getBalance(await lockbox.getAddress())
+    assert.equal(contractBalance, ethers.parseEther('2.0'))
   })
 })
