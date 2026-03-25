@@ -95,6 +95,20 @@ describe('LockBox', () => {
     )
   })
 
+  it('reports contract balance', async () => {
+    const { lockbox, ethers } = await deployFixture()
+    const [addr1, addr2] = await ethers.getSigners()
+    assert.equal(await lockbox.contractBalance(), 0n)
+
+    await lockbox.connect(addr1).deposit({ value: ethers.parseEther('1.0') })
+    await lockbox.connect(addr2).deposit({ value: ethers.parseEther('2.0') })
+    assert.equal(await lockbox.contractBalance(), ethers.parseEther('3.0'))
+
+    await lockbox.connect(addr1).withdraw(ethers.parseEther('0.5'))
+    assert.equal(await lockbox.contractBalance(), ethers.parseEther('2.5'))
+    assert.equal(await lockbox.balanceOf(addr1.address), ethers.parseEther('0.5'))
+  })
+
   it('tracks balances per address independently', async () => {
     const { lockbox, ethers } = await deployFixture()
     const [addr1, addr2] = await ethers.getSigners()
