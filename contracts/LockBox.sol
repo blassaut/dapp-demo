@@ -17,9 +17,9 @@ contract LockBox {
         require(amount > 0, "Must withdraw > 0");
         require(_balances[msg.sender] >= amount, "Insufficient balance");
         _balances[msg.sender] -= amount;
+        emit Withdrawn(msg.sender, amount);
         (bool success, ) = msg.sender.call{value: amount}("");
         require(success, "Transfer failed");
-        emit Withdrawn(msg.sender, amount);
     }
 
     function balanceOf(address account) external view returns (uint256) {

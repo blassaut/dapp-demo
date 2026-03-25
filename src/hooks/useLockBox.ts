@@ -56,6 +56,8 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
   const deposit = useCallback(
     async (amount: string) => {
       if (!provider) return
+      const parsed = parseFloat(amount)
+      if (isNaN(parsed) || parsed <= 0 || !isFinite(parsed)) return
       setAppState(AppState.Pending)
       setStatusMessage('Processing deposit...')
       setLastAction('')
@@ -84,6 +86,8 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
 
   const withdraw = useCallback(async (amount: string) => {
     if (!provider) return
+    const parsed = parseFloat(amount)
+    if (isNaN(parsed) || parsed <= 0 || !isFinite(parsed)) return
     setAppState(AppState.Pending)
     setStatusMessage('Processing withdrawal...')
     setLastAction('')

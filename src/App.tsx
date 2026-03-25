@@ -14,8 +14,24 @@ import { StatusPanel } from './components/StatusPanel'
 import { TxHistory } from './components/TxHistory'
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS ?? ''
+const isValidAddress = /^0x[a-fA-F0-9]{40}$/.test(CONTRACT_ADDRESS)
 
 export default function App() {
+  if (!isValidAddress) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
+        <div className="w-full max-w-sm">
+          <div className="rounded-2xl border border-red-500/30 bg-red-950/20 backdrop-blur-sm overflow-hidden p-6 text-center">
+            <h1 className="text-lg font-heading font-bold text-red-400 mb-2">Configuration Error</h1>
+            <p className="text-sm font-mono text-red-300/70">
+              Missing or invalid contract address. Set <code className="text-red-300">VITE_CONTRACT_ADDRESS</code> to a valid Ethereum address.
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   const { address, walletBalance, isConnected, isNoWallet, connect, disconnect } = useWallet()
   const { networkName, isSupported } = useNetwork(isConnected)
 

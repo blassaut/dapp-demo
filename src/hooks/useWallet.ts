@@ -12,10 +12,13 @@ declare global {
   }
 }
 
+import { formatEther } from 'ethers'
+
 function formatEthBalance(weiHex: string): string {
-  const wei = BigInt(weiHex)
-  const eth = Number(wei) / 1e18
-  return eth.toFixed(4)
+  const formatted = formatEther(BigInt(weiHex))
+  // Show 4 decimal places
+  const dot = formatted.indexOf('.')
+  return dot === -1 ? formatted : formatted.slice(0, dot + 5)
 }
 
 export function useWallet(): WalletState {

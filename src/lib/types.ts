@@ -11,6 +11,7 @@ export interface TxRecord {
   type: 'deposit' | 'withdrawal'
   amount: string
   txHash: string
+  blockNumber: number
 }
 
 export interface LockBoxProvider {

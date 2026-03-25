@@ -1,12 +1,4 @@
-const EXPLORER_URL = 'https://hoodi.etherscan.io'
-
-function getTxUrl(txHash: string): string {
-  return `${EXPLORER_URL}/tx/${txHash}`
-}
-
-function truncateHash(hash: string): string {
-  return `${hash.slice(0, 10)}...${hash.slice(-8)}`
-}
+import { getTxUrl, truncateHash } from '../lib/explorer'
 
 interface StatusPanelProps {
   statusMessage: string

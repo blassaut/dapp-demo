@@ -17,7 +17,8 @@ export class ContractProvider implements LockBoxProvider {
   }
 
   private async getContract() {
-    const provider = new BrowserProvider(window.ethereum!)
+    if (!window.ethereum) throw new Error('No wallet provider found')
+    const provider = new BrowserProvider(window.ethereum)
     const signer = await provider.getSigner()
     const address = await signer.getAddress()
     const contract = new Contract(this.contractAddress, LOCKBOX_ABI, signer)
@@ -52,8 +53,8 @@ export class ContractProvider implements LockBoxProvider {
     const withdrawFilter = contract.filters.Withdrawn(address)
 
     const [depositEvents, withdrawEvents] = await Promise.all([
-      contract.queryFilter(depositFilter),
-      contract.queryFilter(withdrawFilter),
+      contract.queryFilter(depositFilter, 0),
+      contract.queryFilter(withdrawFilter, 0),
     ])
 
     for (const event of depositEvents) {
@@ -62,6 +63,7 @@ export class ContractProvider implements LockBoxProvider {
           type: 'deposit',
           amount: formatEther(event.args[1]),
           txHash: event.transactionHash,
+          blockNumber: event.blockNumber,
         })
       }
     }
@@ -72,16 +74,13 @@ export class ContractProvider implements LockBoxProvider {
           type: 'withdrawal',
           amount: formatEther(event.args[1]),
           txHash: event.transactionHash,
+          blockNumber: event.blockNumber,
         })
       }
     }
 
     // Sort by block number (newest first)
-    records.sort((a, b) => {
-      const blockA = [...depositEvents, ...withdrawEvents].find(e => e.transactionHash === a.txHash)?.blockNumber ?? 0
-      const blockB = [...depositEvents, ...withdrawEvents].find(e => e.transactionHash === b.txHash)?.blockNumber ?? 0
-      return blockB - blockA
-    })
+    records.sort((a, b) => b.blockNumber - a.blockNumber)
 
     return records
   }

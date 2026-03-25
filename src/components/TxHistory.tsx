@@ -1,12 +1,8 @@
 import { useState } from 'react'
 import type { TxRecord } from '../lib/types'
+import { getTxUrl, truncateHash } from '../lib/explorer'
 
-const EXPLORER_URL = 'https://hoodi.etherscan.io'
 const PAGE_SIZE = 5
-
-function truncateHash(hash: string): string {
-  return `${hash.slice(0, 10)}...${hash.slice(-6)}`
-}
 
 interface TxHistoryProps {
   records: TxRecord[]
@@ -28,7 +24,7 @@ export function TxHistory({ records }: TxHistoryProps) {
           <a
             key={record.txHash}
             data-testid="tx-history-item"
-            href={`${EXPLORER_URL}/tx/${record.txHash}`}
+            href={getTxUrl(record.txHash)}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-between py-1.5 px-2.5 rounded-lg hover:bg-white/[0.02] transition-colors group"

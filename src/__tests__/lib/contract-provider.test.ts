@@ -26,6 +26,7 @@ vi.mock('ethers', () => ({
     return num === 0 ? '0.0' : num.toString()
   }),
   parseEther: vi.fn((val: string) => BigInt(Math.round(parseFloat(val) * 1e18))),
+  EventLog: class EventLog {},
 }))
 
 beforeEach(() => {
@@ -34,6 +35,11 @@ beforeEach(() => {
   mockWait.mockResolvedValue(undefined)
   mockBalanceOf.mockReset()
   mockSigner.getAddress.mockResolvedValue('0xUserAddress')
+  Object.defineProperty(window, 'ethereum', {
+    value: { request: vi.fn(), on: vi.fn(), removeListener: vi.fn() },
+    writable: true,
+    configurable: true,
+  })
 })
 
 const FAKE_ADDRESS = '0x1234567890123456789012345678901234567890'
