@@ -67,7 +67,7 @@ export function DepositForm({
           disabled={withdrawDisabled}
           className="flex-1 px-5 py-3 border border-white/[0.08] text-light/70 font-body font-semibold text-sm rounded-xl hover:bg-white/[0.03] hover:border-white/[0.12] transition-all disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-white/[0.08]"
         >
-          Withdraw
+          {parseFloat(balance) > 0 ? `Withdraw ${balance}` : 'Withdraw'}
         </button>
       </div>
     </div>
