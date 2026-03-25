@@ -1,4 +1,4 @@
-import { HOODI_NETWORK_NAME, HARDHAT_NETWORK_NAME } from '../lib/constants'
+import { HOODI_NETWORK_NAME } from '../lib/constants'
 
 interface NetworkBannerProps {
   networkName: string | null
@@ -16,7 +16,7 @@ export function NetworkBanner({ networkName }: NetworkBannerProps) {
         Unsupported network detected: {networkName}
       </p>
       <p className="text-amber-400/60 font-body text-xs mt-1">
-        Switch to {HOODI_NETWORK_NAME} or {HARDHAT_NETWORK_NAME} to continue
+        Switch to {HOODI_NETWORK_NAME} to continue
       </p>
     </div>
   )
