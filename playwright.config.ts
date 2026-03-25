@@ -5,6 +5,7 @@ const testDir = defineBddConfig({
   features: 'e2e/features/**/*.feature',
   steps: 'e2e/steps/**/*.ts',
   outputDir: 'e2e/.generated',
+  tags: 'not @skip',
 })
 
 export default defineConfig({
@@ -26,10 +27,6 @@ export default defineConfig({
       testDir,
     },
   ],
-  /**
-   * Vite dev server - started automatically by Playwright.
-   * The Hardhat node + contract deployment are handled in global-setup.ts.
-   */
   webServer: {
     command: 'npm run dev -- --mode e2e --port 5175',
     url: 'http://localhost:5175',

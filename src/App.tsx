@@ -13,8 +13,18 @@ import { DepositForm } from './components/DepositForm'
 import { StatusPanel } from './components/StatusPanel'
 import { TxHistory } from './components/TxHistory'
 
-const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS ?? ''
-const isValidAddress = /^0x[a-fA-F0-9]{40}$/.test(CONTRACT_ADDRESS)
+import { HARDHAT_CHAIN_ID } from './lib/constants'
+
+const HOODI_CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS ?? ''
+const HARDHAT_CONTRACT_ADDRESS = import.meta.env.VITE_HARDHAT_CONTRACT_ADDRESS ?? ''
+
+function getContractAddress(chainId: number | null): string {
+  if (chainId === HARDHAT_CHAIN_ID && HARDHAT_CONTRACT_ADDRESS) return HARDHAT_CONTRACT_ADDRESS
+  return HOODI_CONTRACT_ADDRESS
+}
+
+const isValidAddress = (addr: string) => /^0x[a-fA-F0-9]{40}$/.test(addr)
+const hasAnyValidAddress = isValidAddress(HOODI_CONTRACT_ADDRESS) || isValidAddress(HARDHAT_CONTRACT_ADDRESS)
 
 function ConfigError() {
   return (
@@ -33,12 +43,14 @@ function ConfigError() {
 
 export default function App() {
   const { address, walletBalance, isConnected, isNoWallet, connect, disconnect } = useWallet()
-  const { networkName, isSupported } = useNetwork(isConnected)
+  const { chainId, networkName, isSupported } = useNetwork(isConnected)
+
+  const contractAddress = getContractAddress(chainId)
 
   const provider = useMemo(() => {
-    if (!isConnected || !isValidAddress) return null
-    return new ContractProvider(CONTRACT_ADDRESS)
-  }, [isConnected])
+    if (!isConnected || !isValidAddress(contractAddress)) return null
+    return new ContractProvider(contractAddress)
+  }, [isConnected, contractAddress])
 
   const { balance, appState, statusMessage, lastAction, lastTxHash, history, deposit, withdraw } = useLockBox({
     provider,
@@ -46,7 +58,7 @@ export default function App() {
     isSupported,
   })
 
-  if (!isValidAddress) return <ConfigError />
+  if (!hasAnyValidAddress) return <ConfigError />
 
   const currentStatus = statusMessage || ''
 

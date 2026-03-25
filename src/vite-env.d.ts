@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_CONTRACT_ADDRESS: string
+  readonly VITE_HARDHAT_CONTRACT_ADDRESS: string
 }
 
 interface ImportMeta {

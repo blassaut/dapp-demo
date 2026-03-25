@@ -78,7 +78,7 @@ async function globalSetup(): Promise<void> {
   console.log(`[e2e] LockBox deployed at ${contractAddress}`)
 
   // Write .env.e2e (not .env - never overwrite the user's Hoodi config)
-  writeFileSync(resolve(ROOT, '.env.e2e'), `VITE_CONTRACT_ADDRESS=${contractAddress}\n`)
+  writeFileSync(resolve(ROOT, '.env.e2e'), `VITE_HARDHAT_CONTRACT_ADDRESS=${contractAddress}\n`)
 
   console.log('[e2e] Global setup complete')
 }

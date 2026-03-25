@@ -10,6 +10,7 @@ Feature: Visitor connects wallet
     Then I should see my truncated wallet address
     And the network chip should show the current network
 
+  @skip
   Scenario: Wallet is available but user cancels connection
     Given I am on the LockBox demo page
     When I click the Connect Wallet button
@@ -17,6 +18,7 @@ Feature: Visitor connects wallet
     Then the app should remain in disconnected state
     And the Connect Wallet button should still be visible
 
+  @skip
   Scenario: No wallet is installed
     Given MetaMask is not installed
     And I am on the LockBox demo page

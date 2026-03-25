@@ -9,12 +9,12 @@ Feature: Visitor withdraws successfully
     When I enter "0.1" in the amount input
     And I click the Withdraw button
     And I approve the transaction in MetaMask
-    Then the status panel should show "Processing withdrawal..."
-    And after confirmation the locked balance should decrease
+    Then after confirmation the locked balance should decrease
     And the status should show a withdrawal confirmation message
+    And the transaction history should be visible
+    And the history should have grown by 1
 
   Scenario: Withdraw button disabled when amount exceeds balance
     Given I am connected on the supported network
-    And my locked balance shows "0.0 ETH"
-    When I enter "1.0" in the amount input
+    When I enter "99999" in the amount input
     Then the Withdraw button should be disabled
