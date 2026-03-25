@@ -54,15 +54,19 @@ export class ContractProvider implements LockBoxProvider {
   }
 
   async getHistory(): Promise<TxRecord[]> {
-    const { contract, address } = await this.getContract()
+    const { contract, address, provider } = await this.getContract()
     const records: TxRecord[] = []
+
+    // Limit block range to avoid RPC failures on public nodes
+    const currentBlock = await provider.getBlockNumber()
+    const fromBlock = Math.max(0, currentBlock - 50_000)
 
     const depositFilter = contract.filters.Deposited(address)
     const withdrawFilter = contract.filters.Withdrawn(address)
 
     const [depositEvents, withdrawEvents] = await Promise.all([
-      contract.queryFilter(depositFilter, 0),
-      contract.queryFilter(withdrawFilter, 0),
+      contract.queryFilter(depositFilter, fromBlock),
+      contract.queryFilter(withdrawFilter, fromBlock),
     ])
 
     for (const event of depositEvents) {
