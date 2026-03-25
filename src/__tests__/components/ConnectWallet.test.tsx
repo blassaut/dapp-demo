@@ -27,7 +27,7 @@ describe('ConnectWallet', () => {
   it('shows no-wallet message when isNoWallet is true', () => {
     render(<ConnectWallet address={null} isNoWallet={true} onConnect={vi.fn()} />)
     expect(screen.getByTestId('wallet-not-detected')).toHaveTextContent(
-      'MetaMask not detected. Install MetaMask to continue.',
+      'MetaMask not detected. Install MetaMask to try the live flow.',
     )
   })
 })

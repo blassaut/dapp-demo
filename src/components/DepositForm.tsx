@@ -72,16 +72,16 @@ export function DepositForm({
           data-testid="lockbox-button-deposit"
           onClick={() => onDeposit(amount)}
           disabled={depositDisabled}
-          className="flex-1 px-5 py-3 bg-teal-400 text-dark-900 font-body font-semibold text-sm rounded-xl hover:bg-teal-400/90 hover:shadow-[0_0_24px_rgba(20,184,166,0.2)] transition-all disabled:opacity-20 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:bg-teal-400"
+          className={`flex-1 px-5 py-3 bg-teal-400 text-dark-900 font-body font-semibold text-sm rounded-xl hover:bg-teal-300 hover:shadow-[0_0_32px_rgba(20,184,166,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:bg-teal-400 disabled:hover:translate-y-0 ${isPending ? 'animate-shimmer' : ''}`}
         >
-          {isPending ? 'Processing...' : 'Deposit'}
+          <span className={isPending ? 'animate-pulse-soft' : ''}>{isPending ? 'Processing...' : 'Deposit'}</span>
         </button>
         <button
           data-testid="lockbox-button-withdraw"
           onClick={() => onWithdraw(amount)}
           disabled={withdrawDisabled}
           title={withdrawTitle}
-          className="flex-1 px-5 py-3 border border-white/[0.08] text-light/70 font-body font-semibold text-sm rounded-xl hover:bg-white/[0.03] hover:border-white/[0.12] transition-all disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-white/[0.08]"
+          className="flex-1 px-5 py-3 border border-white/[0.08] text-light/70 font-body font-semibold text-sm rounded-xl hover:bg-white/[0.03] hover:border-white/[0.12] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-white/[0.08] disabled:hover:translate-y-0"
         >
           Withdraw
         </button>
