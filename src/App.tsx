@@ -58,10 +58,10 @@ export default function App() {
         <div className="text-center mb-6">
           <h1 className="text-lg font-heading font-bold text-light mb-2">On-chain deposit & withdraw flow</h1>
           <p className="text-xs font-body text-muted/50 leading-relaxed mb-3">
-            Connect your wallet, deposit ETH, confirm in MetaMask, and see state update in real time - with full history and recovery.
+            End-to-end flow: wallet connection, MetaMask confirmation, on-chain transaction, and UI state synchronization - with full history and recovery.
           </p>
           <p className="text-[10px] font-mono text-teal-400/40">
-            No mocks - real transactions on Hoodi testnet
+            No mocks · real transactions on Hoodi testnet
           </p>
         </div>
 
