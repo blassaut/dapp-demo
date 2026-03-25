@@ -2,7 +2,12 @@ node_modules
 dist
 .env
 .env.local
+.env.e2e
 *.tsbuildinfo
 cache
 artifacts
 typechain-types
+e2e/.generated
+e2e/.hardhat-pid
+playwright-report
+test-results
