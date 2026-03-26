@@ -101,7 +101,7 @@ export default function App() {
                 ✕
               </button>
             </div>
-            <Leaderboard contractAddress={HOODI_CONTRACT_ADDRESS} rpcUrl={HOODI_RPC_URL} currentAddress={address} contractBalance={contractBalance} />
+            <Leaderboard contractAddress={contractAddress} rpcUrl={rpcUrl} currentAddress={address} contractBalance={contractBalance} />
           </div>
         </div>
       )}

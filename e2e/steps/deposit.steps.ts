@@ -203,6 +203,7 @@ Then('I should see the withdraw hint showing the max locked balance', async ({ p
 })
 
 Then('the contract balance should show a non-zero value', async ({ page }) => {
+  await page.getByRole('button', { name: 'Leaderboard' }).click()
   await expect(async () => {
     const text = await page.getByTestId('contract-balance').textContent()
     const amount = parseFloat((text ?? '0').replace(/[^0-9.]/g, ''))
