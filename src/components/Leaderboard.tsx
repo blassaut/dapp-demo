@@ -11,6 +11,8 @@ function truncateAddress(addr: string): string {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`
 }
 
+const RANK_BADGES = ['🥇', '🥈', '🥉'] as const
+
 export function Leaderboard({ contractAddress, rpcUrl, currentAddress, contractBalance }: LeaderboardProps) {
   const { entries, loading } = useLeaderboard(contractAddress, rpcUrl)
 
@@ -50,7 +52,10 @@ export function Leaderboard({ contractAddress, rpcUrl, currentAddress, contractB
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono text-muted/30 w-4">{i + 1}.</span>
+                    <span
+                      className={`text-[10px] font-mono text-muted/30 w-5 inline-block ${RANK_BADGES[i] && isYou ? 'animate-badge-bounce' : ''}`}
+                      style={RANK_BADGES[i] && isYou ? { animationDelay: `${i * 120 + 300}ms` } : undefined}
+                    >{isYou && RANK_BADGES[i] ? RANK_BADGES[i] : `${i + 1}.`}</span>
                     <span className={`text-[10px] font-mono ${isYou ? 'text-teal-400/70' : 'text-muted/40'}`}>
                       {truncateAddress(entry.address)}
                       {isYou && <span className="ml-1 text-teal-400/50">(you)</span>}
