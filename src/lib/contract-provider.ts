@@ -10,6 +10,8 @@ const LOCKBOX_ABI = [
   'event Withdrawn(address indexed user, uint256 amount)',
 ]
 
+const BLOCK_RANGE = 29_999
+
 export class ContractProvider implements LockBoxProvider {
   private contractAddress: string
   private eip1193Provider: Eip1193Provider
@@ -59,14 +61,13 @@ export class ContractProvider implements LockBoxProvider {
     const { address } = await this.getContract()
     const records: TxRecord[] = []
 
-    // Use a direct JSON-RPC provider for event queries — some wallets
-    // (e.g. Rabby) don't support eth_getLogs via their injected provider.
+    // Use direct JSON-RPC provider for event queries (some wallets like Rabby don't support eth_getLogs)
     const rpcProvider = new JsonRpcProvider(this.rpcUrl)
     const readContract = new Contract(this.contractAddress, LOCKBOX_ABI, rpcProvider)
 
-    // Public RPCs limit eth_getLogs to 50k blocks per request.
+    // Public RPCs limit eth_getLogs to ~30k blocks per request
     const currentBlock = await rpcProvider.getBlockNumber()
-    const fromBlock = Math.max(0, currentBlock - 29_999)
+    const fromBlock = Math.max(0, currentBlock - BLOCK_RANGE)
 
     const depositFilter = readContract.filters.Deposited(address)
     const withdrawFilter = readContract.filters.Withdrawn(address)
