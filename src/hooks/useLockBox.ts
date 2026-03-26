@@ -28,7 +28,7 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
       setBalance('0')
     } else if (!isSupported) {
       setAppState(AppState.UnsupportedNetwork)
-      setStatusMessage('Unsupported network')
+      setStatusMessage('')
     } else {
       setAppState(AppState.Idle)
       setStatusMessage('')
