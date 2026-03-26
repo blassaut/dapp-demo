@@ -1,5 +1,6 @@
 import { BrowserProvider, JsonRpcProvider, Contract, formatEther, parseEther, EventLog } from 'ethers'
 import type { Eip1193Provider, LockBoxProvider, TxRecord } from './types'
+import { BLOCK_RANGE } from './constants'
 
 const LOCKBOX_ABI = [
   'function deposit() external payable',
@@ -9,8 +10,6 @@ const LOCKBOX_ABI = [
   'event Deposited(address indexed user, uint256 amount)',
   'event Withdrawn(address indexed user, uint256 amount)',
 ]
-
-const BLOCK_RANGE = 29_999
 
 export class ContractProvider implements LockBoxProvider {
   private contractAddress: string

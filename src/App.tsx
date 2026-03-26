@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useWallet } from './hooks/useWallet'
 import { useNetwork } from './hooks/useNetwork'
 import { useLockBox } from './hooks/useLockBox'
@@ -12,6 +12,7 @@ import { LockedBalance } from './components/LockedBalance'
 import { DepositForm } from './components/DepositForm'
 import { StatusPanel } from './components/StatusPanel'
 import { TxHistory } from './components/TxHistory'
+import { Leaderboard } from './components/Leaderboard'
 
 import { HARDHAT_CHAIN_ID, HARDHAT_RPC_URL, HOODI_RPC_URL } from './lib/constants'
 
@@ -60,17 +61,51 @@ export default function App() {
     isSupported,
   })
 
+  const [showLeaderboard, setShowLeaderboard] = useState(false)
+
   if (!hasAnyValidAddress) return <ConfigError />
 
   const currentStatus = statusMessage || ''
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative">
+      {/* Top bar */}
+      <div className="fixed top-4 left-4 z-10">
+        <button
+          onClick={() => setShowLeaderboard(!showLeaderboard)}
+          className="text-[10px] font-mono text-muted/40 hover:text-teal-400/70 border border-white/[0.08] hover:border-teal-400/30 rounded-lg px-3 py-1.5 backdrop-blur-sm bg-dark-800/50 transition-all duration-200"
+        >
+          Leaderboard
+        </button>
+      </div>
       {isConnected && (
         <div className="fixed top-4 right-4 z-10">
           <NetworkChip networkName={networkName} isSupported={isSupported} />
         </div>
       )}
+
+      {/* Leaderboard slide-out panel */}
+      {showLeaderboard && (
+        <div className="fixed inset-0 z-20" onClick={() => setShowLeaderboard(false)}>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          <div
+            className="absolute top-0 left-0 h-full w-80 max-w-[85vw] bg-dark-900/95 border-r border-white/[0.08] p-6 animate-slide-in-left"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-xs font-heading font-bold text-light">Leaderboard</span>
+              <button
+                onClick={() => setShowLeaderboard(false)}
+                className="text-muted/40 hover:text-light transition-colors text-sm"
+              >
+                ✕
+              </button>
+            </div>
+            <Leaderboard contractAddress={HOODI_CONTRACT_ADDRESS} rpcUrl={HOODI_RPC_URL} currentAddress={address} contractBalance={contractBalance} />
+          </div>
+        </div>
+      )}
+
       {/* Main card */}
       <div className="w-full max-w-sm">
         {/* Billboard */}
@@ -124,7 +159,7 @@ export default function App() {
                 {isSupported && (
                   <>
                     {/* Locked balance */}
-                    <LockedBalance balance={balance} contractBalance={contractBalance} />
+                    <LockedBalance balance={balance} />
 
                     {/* Transaction history */}
                     {history.length > 0 && (
@@ -160,6 +195,7 @@ export default function App() {
             </div>
           )}
         </div>
+
       </div>
     </div>
   )
