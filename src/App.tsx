@@ -52,7 +52,7 @@ export default function App() {
   const contractProvider = useMemo(() => {
     if (!isConnected || !provider || !isValidAddress(contractAddress)) return null
     return new ContractProvider(contractAddress, provider, rpcUrl)
-  }, [isConnected, provider, contractAddress, rpcUrl])
+  }, [isConnected, provider, contractAddress, rpcUrl, address])
 
   const { balance, contractBalance, appState, statusMessage, lastAction, lastTxHash, history, deposit, withdraw } = useLockBox({
     provider: contractProvider,
