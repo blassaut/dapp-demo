@@ -6,4 +6,5 @@ export const HOODI_EXPLORER_URL = 'https://hoodi.etherscan.io'
 export const HARDHAT_RPC_URL = 'http://127.0.0.1:8545'
 export const HARDHAT_NETWORK_NAME = 'Hardhat'
 export const SUPPORTED_CHAIN_IDS = [HOODI_CHAIN_ID, HARDHAT_CHAIN_ID] as const
+export const BLOCK_RANGE = 29_999
 export const STATUS_TIMEOUT_MS = 5000
