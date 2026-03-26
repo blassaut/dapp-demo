@@ -30,7 +30,7 @@ export function Leaderboard({ contractAddress, rpcUrl, currentAddress, contractB
       {contractBalance && contractBalance !== '0' && (
         <div className="mb-3 pb-3 border-b border-white/[0.06]">
           <p className="text-[10px] font-mono text-muted/40 uppercase tracking-wider mb-1">Total in contract</p>
-          <p className="text-sm font-mono text-teal-400/80 font-medium">{contractBalance} ETH</p>
+          <p data-testid="contract-balance" className="text-sm font-mono text-teal-400/80 font-medium">{contractBalance} ETH</p>
         </div>
       )}
       <p className="text-[10px] font-mono text-muted/40 uppercase tracking-wider mb-2">Top depositors</p>
