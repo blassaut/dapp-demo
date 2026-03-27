@@ -7,8 +7,31 @@ on:
     branches: [main]
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      app: ${{ steps.filter.outputs.app }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            app:
+              - 'src/**'
+              - 'contracts/**'
+              - 'e2e/**'
+              - 'hardhat.config.*'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'vite.config.*'
+              - 'tailwind.config.*'
+              - 'tsconfig*.json'
+
   build:
     runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
