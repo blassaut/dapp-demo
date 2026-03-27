@@ -20,7 +20,7 @@ Given('I am connected with the wrong network', async ({ page, wallet }) => {
 
   const connectBtn = page.getByTestId('connect-wallet-btn')
   if (await connectBtn.isVisible()) {
-    const popupPromise = page.context().waitForEvent('page')
+    const popupPromise = page.context().waitForEvent('page', { timeout: 30_000 })
     await connectBtn.click()
     try {
       const popup = await popupPromise
@@ -38,7 +38,7 @@ Given('I am on the wrong network', async ({ page, wallet }) => {
 
   const connectBtn = page.getByTestId('connect-wallet-btn')
   if (await connectBtn.isVisible()) {
-    const popupPromise = page.context().waitForEvent('page')
+    const popupPromise = page.context().waitForEvent('page', { timeout: 30_000 })
     await connectBtn.click()
     try {
       const popup = await popupPromise

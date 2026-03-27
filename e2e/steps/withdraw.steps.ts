@@ -13,7 +13,7 @@ When('I enter {string} in the withdraw input', async ({ page }, amount: string) 
 })
 
 When('I click "Withdraw"', async ({ page }) => {
-  ;(page as any).__pendingPopup = page.context().waitForEvent('page')
+  ;(page as any).__pendingPopup = page.context().waitForEvent('page', { timeout: 30_000 })
   await page.getByTestId('withdraw-btn').click()
 })
 

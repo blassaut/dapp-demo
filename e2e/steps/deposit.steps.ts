@@ -14,7 +14,7 @@ When('I enter {string} in the deposit input', async ({ page }, amount: string) =
 })
 
 When('I click "Approve & Deposit"', async ({ page }) => {
-  ;(page as any).__pendingPopup = page.context().waitForEvent('page')
+  ;(page as any).__pendingPopup = page.context().waitForEvent('page', { timeout: 30_000 })
   await page.getByTestId('deposit-btn').click()
 })
 
@@ -24,7 +24,7 @@ When('I confirm the approval in MetaMask', async ({ page }) => {
   const popup = await pendingPopup
 
   // Register deposit popup listener BEFORE confirming approval to avoid race condition
-  const depositPopupPromise = page.context().waitForEvent('page')
+  const depositPopupPromise = page.context().waitForEvent('page', { timeout: 30_000 })
   await popup.getByTestId('confirm-footer-button').click()
   if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
   await page.bringToFront()

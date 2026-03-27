@@ -14,7 +14,7 @@ When('I enter {string} ETH in the mint input', async ({ page }, amount: string) 
 })
 
 When('I click "Mint LKBOX"', async ({ page }) => {
-  ;(page as any).__pendingPopup = page.context().waitForEvent('page')
+  ;(page as any).__pendingPopup = page.context().waitForEvent('page', { timeout: 30_000 })
   await page.getByTestId('mint-lkbox-btn').click()
 })
 
