@@ -123,6 +123,33 @@ describe('LockBox', () => {
     assert.equal(args[1], amount)
   })
 
+  it('reverts deposit of a different token than the one configured', async () => {
+    const { lockbox, ethers } = await deployFixture()
+    const [owner] = await ethers.getSigners()
+
+    // Deploy a second, unrelated LKBOXToken
+    const OtherTokenFactory = await ethers.getContractFactory('LKBOXToken')
+    const otherToken = await OtherTokenFactory.deploy()
+    await otherToken.waitForDeployment()
+
+    // Mint from the other token and approve the lockbox
+    await otherToken.mint({ value: ethers.parseEther('1.0') })
+    await otherToken.approve(await lockbox.getAddress(), ethers.parseEther('500'))
+
+    // Deposit should revert - lockbox calls safeTransferFrom on its own token,
+    // which the user never approved
+    await assert.rejects(
+      async () => { await lockbox.deposit(ethers.parseEther('500')) },
+      (error: unknown) => {
+        const msg = (error as Error).message
+        return msg.includes('ERC20InsufficientAllowance') || msg.includes('allowance')
+      }
+    )
+
+    // Locked balance should remain zero
+    assert.equal(await lockbox.lockedBalance(owner.address), 0n)
+  })
+
   it('emits Withdrawn event', async () => {
     const { token, lockbox, ethers } = await deployFixture()
     const [owner] = await ethers.getSigners()
