@@ -72,7 +72,7 @@ export default function App() {
   const [showLeaderboard, setShowLeaderboard] = useState(false)
   const leaderboardAddress = isValidAddress(lockboxAddress) ? lockboxAddress : HOODI_CONTRACT_ADDRESS
   const leaderboardRpc = isValidAddress(lockboxAddress) ? rpcUrl : HOODI_RPC_URL
-  const { entries: leaderboardEntries, loading: leaderboardLoading } = useLeaderboard(leaderboardAddress, leaderboardRpc)
+  const { entries: leaderboardEntries, loading: leaderboardLoading, refresh: refreshLeaderboard } = useLeaderboard(leaderboardAddress, leaderboardRpc)
 
   if (!hasAnyValidAddress) return <ConfigError />
 
@@ -84,7 +84,7 @@ export default function App() {
       <div className="fixed top-4 left-4 z-10">
         <button
           data-testid="leaderboard-btn"
-          onClick={() => setShowLeaderboard(!showLeaderboard)}
+          onClick={() => { if (!showLeaderboard) refreshLeaderboard(); setShowLeaderboard(!showLeaderboard) }}
           className="text-[10px] font-mono text-muted/40 hover:text-teal-400/70 border border-white/[0.08] hover:border-teal-400/30 rounded-lg px-3 py-1.5 backdrop-blur-sm bg-dark-800/50 transition-all duration-200"
         >
           Leaderboard

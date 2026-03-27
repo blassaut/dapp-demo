@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { JsonRpcProvider, Contract, formatEther, EventLog } from 'ethers'
 import { BLOCK_RANGE } from '../lib/constants'
 
@@ -15,6 +15,11 @@ export interface LeaderboardEntry {
 export function useLeaderboard(lockboxAddress: string, rpcUrl: string) {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  const refresh = useCallback(() => {
+    setRefreshKey((k) => k + 1)
+  }, [])
 
   useEffect(() => {
     if (!lockboxAddress || !rpcUrl) {
@@ -73,9 +78,9 @@ export function useLeaderboard(lockboxAddress: string, rpcUrl: string) {
 
     fetchLeaderboard()
     return () => { cancelled = true }
-  }, [lockboxAddress, rpcUrl])
+  }, [lockboxAddress, rpcUrl, refreshKey])
 
-  return { entries, loading }
+  return { entries, loading, refresh }
 }
 
 export function formatLeaderboardAmount(amount: bigint): string {
