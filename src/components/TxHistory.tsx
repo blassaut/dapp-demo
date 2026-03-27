@@ -16,14 +16,6 @@ function txColor(type: TxRecord['type']): string {
   }
 }
 
-function txPrefix(type: TxRecord['type']): string {
-  switch (type) {
-    case 'mint': return ''
-    case 'deposit': return ''
-    case 'withdrawal': return ''
-  }
-}
-
 function txLabel(type: TxRecord['type']): string {
   switch (type) {
     case 'mint': return 'Mint'
@@ -58,7 +50,7 @@ export function TxHistory({ records }: TxHistoryProps) {
                 {txLabel(record.type)}
               </span>
               <span className={`text-[10px] font-mono font-medium ${txColor(record.type)}`}>
-                {txPrefix(record.type)}{record.amount} LKBOX
+                {record.amount} LKBOX
               </span>
             </div>
             <span className="text-[10px] font-mono text-muted/25 group-hover:text-muted/40 transition-colors">
