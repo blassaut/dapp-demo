@@ -1,4 +1,4 @@
-# Web3 Staking Demo
+# LockBox
 
 A React dApp demonstrating a complete on-chain deposit and withdrawal flow. No mocks — every transaction executes on a real blockchain (Hoodi testnet or local Hardhat node).
 
