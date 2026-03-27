@@ -22,7 +22,14 @@ export function Leaderboard({ entries, loading, currentAddress }: LeaderboardPro
     )
   }
 
-  if (entries.length === 0) return null
+  if (entries.length === 0) {
+    return (
+      <div className="rounded-2xl border border-white/[0.06] bg-dark-800/30 backdrop-blur-sm p-4">
+        <p className="text-[10px] font-mono text-muted/40 uppercase tracking-wider mb-2">Top lockers</p>
+        <p className="text-[10px] font-mono text-muted/20 text-center py-3">No deposits yet. Be the first!</p>
+      </div>
+    )
+  }
 
   return (
     <div className="rounded-2xl border border-white/[0.06] bg-dark-800/30 backdrop-blur-sm p-4">
