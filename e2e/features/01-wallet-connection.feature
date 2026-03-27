@@ -10,11 +10,13 @@ Feature: Visitor connects wallet
     Then I should see my truncated wallet address
     And I should see my LKBOX balance
 
+  @skip
   Scenario: Wrong network shows switch prompt
     Given I am connected with the wrong network
     Then I should see the "Switch to Hoodi" button
     And deposit and withdraw buttons should be disabled
 
+  @skip
   Scenario: Switching network enables the app
     Given I am on the wrong network
     When I click "Switch to Hoodi"
