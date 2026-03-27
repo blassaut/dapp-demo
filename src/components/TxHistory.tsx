@@ -8,6 +8,30 @@ interface TxHistoryProps {
   records: TxRecord[]
 }
 
+function txColor(type: TxRecord['type']): string {
+  switch (type) {
+    case 'mint': return 'text-blue-400/70'
+    case 'deposit': return 'text-teal-400/70'
+    case 'withdrawal': return 'text-amber-400/70'
+  }
+}
+
+function txPrefix(type: TxRecord['type']): string {
+  switch (type) {
+    case 'mint': return '+'
+    case 'deposit': return ''
+    case 'withdrawal': return '-'
+  }
+}
+
+function txLabel(type: TxRecord['type']): string {
+  switch (type) {
+    case 'mint': return 'Mint'
+    case 'deposit': return 'Deposit'
+    case 'withdrawal': return 'Withdraw'
+  }
+}
+
 export function TxHistory({ records }: TxHistoryProps) {
   const [expanded, setExpanded] = useState(false)
 
@@ -29,11 +53,14 @@ export function TxHistory({ records }: TxHistoryProps) {
             rel="noopener noreferrer"
             className="flex items-center justify-between py-1.5 px-2.5 rounded-lg hover:bg-white/[0.02] transition-colors group"
           >
-            <span className={`text-[10px] font-mono font-medium ${
-              record.type === 'deposit' ? 'text-teal-400/70' : 'text-amber-400/70'
-            }`}>
-              {record.type === 'deposit' ? '+' : '-'}{record.amount} ETH
-            </span>
+            <div className="flex items-center gap-2">
+              <span className={`text-[10px] font-mono font-medium ${txColor(record.type)}`}>
+                {txLabel(record.type)}
+              </span>
+              <span className={`text-[10px] font-mono font-medium ${txColor(record.type)}`}>
+                {txPrefix(record.type)}{record.amount} LKBOX
+              </span>
+            </div>
             <span className="text-[10px] font-mono text-muted/25 group-hover:text-muted/40 transition-colors">
               {truncateHash(record.txHash)}
             </span>

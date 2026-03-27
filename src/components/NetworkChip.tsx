@@ -8,7 +8,7 @@ export function NetworkChip({ networkName, isSupported }: NetworkChipProps) {
 
   return (
     <span
-      data-testid="network-chip"
+      data-testid="network-badge"
       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono border ${
         isSupported
           ? 'text-emerald-400 border-emerald-400/20 bg-emerald-400/10'

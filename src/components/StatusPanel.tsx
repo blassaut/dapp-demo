@@ -8,7 +8,7 @@ interface StatusPanelProps {
 
 export function StatusPanel({ statusMessage, lastAction, txHash }: StatusPanelProps) {
   return (
-    <div data-testid="status-panel" className="px-6 py-3.5">
+    <div data-testid="tx-status" className="px-6 py-3.5">
       <p data-testid="status-current" className="font-mono text-[11px] text-muted/50 min-h-[1rem] leading-relaxed">
         {statusMessage}
       </p>

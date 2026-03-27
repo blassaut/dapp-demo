@@ -56,6 +56,7 @@ export function NetworkBanner({ networkName, provider }: NetworkBannerProps) {
         Unsupported network detected: {networkName}
       </p>
       <button
+        data-testid="switch-network-btn"
         onClick={handleSwitch}
         disabled={switching || !provider}
         className="mt-2 px-4 py-1.5 rounded-lg bg-amber-400/20 text-amber-400 font-body text-xs font-medium hover:bg-amber-400/30 transition-colors disabled:opacity-50"

@@ -41,7 +41,7 @@ export function ConnectWallet({ address, hasInjectedWallet, onConnect, onConnect
     return (
       <div className="space-y-1.5">
         <button
-          data-testid="wallet-connect-button"
+          data-testid="connect-wallet-btn"
           onClick={onConnect}
           className={primaryButtonClass}
         >
@@ -61,7 +61,7 @@ export function ConnectWallet({ address, hasInjectedWallet, onConnect, onConnect
   // No injected wallet (mobile browser, etc.) — WalletConnect is the primary option
   return (
     <button
-      data-testid="wallet-connect-button"
+      data-testid="connect-wallet-btn"
       onClick={onConnectWalletConnect}
       className={primaryButtonClass}
     >
