@@ -5,18 +5,18 @@ import { NetworkChip } from '../../components/NetworkChip'
 describe('NetworkChip', () => {
   it('renders network name', () => {
     render(<NetworkChip networkName="Ethereum Hoodi" isSupported={true} />)
-    expect(screen.getByTestId('network-chip')).toHaveTextContent('Ethereum Hoodi')
+    expect(screen.getByTestId('network-badge')).toHaveTextContent('Ethereum Hoodi')
   })
 
   it('shows green styling for supported network', () => {
     render(<NetworkChip networkName="Ethereum Hoodi" isSupported={true} />)
-    const chip = screen.getByTestId('network-chip')
+    const chip = screen.getByTestId('network-badge')
     expect(chip.className).toContain('emerald')
   })
 
   it('shows amber styling for unsupported network', () => {
     render(<NetworkChip networkName="Ethereum Mainnet" isSupported={false} />)
-    const chip = screen.getByTestId('network-chip')
+    const chip = screen.getByTestId('network-badge')
     expect(chip.className).toContain('amber')
   })
 

@@ -21,7 +21,7 @@ describe('StatusPanel', () => {
 
   it('renders empty state gracefully', () => {
     render(<StatusPanel statusMessage="" lastAction="" txHash={null} />)
-    expect(screen.getByTestId('status-panel')).toBeInTheDocument()
+    expect(screen.getByTestId('tx-status')).toBeInTheDocument()
   })
 
   it('renders tx hash as a link when provided', () => {
