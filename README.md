@@ -1,6 +1,15 @@
 # LockBox
 
-A React dApp demonstrating a complete on-chain deposit and withdrawal flow. No mocks — every transaction executes on a real blockchain (Hoodi testnet or local Hardhat node).
+A React dApp for depositing and withdrawing ETH through an on-chain smart contract. No mocks — every transaction executes on a real blockchain (Hoodi testnet or local Hardhat node).
+
+## Features
+
+- **Deposit & withdraw ETH** with real on-chain transactions
+- **Wallet connection** via MetaMask and WalletConnect
+- **Live balance tracking** — locked balance updates after each transaction
+- **Transaction history** — view past deposits and withdrawals
+- **Leaderboard** — ranked view of top depositors with medal badges for connected users
+- **Network detection** — supports Hoodi testnet and local Hardhat
 
 ## Stack
 
