@@ -5,7 +5,7 @@ import { expect } from '@playwright/test'
 import { createBdd } from 'playwright-bdd'
 import type { Page } from 'playwright-core'
 import { test } from './fixtures'
-import { lkboxBalanceSnapshots, lockedBalanceSnapshots } from './common.steps'
+import { lockedBalanceSnapshots } from './common.steps'
 
 const { When, Then } = createBdd(test)
 
@@ -55,13 +55,4 @@ Then('I should appear on the leaderboard', async ({ page }) => {
   await page.getByTestId('leaderboard-btn').click()
   await expect(page.getByTestId('leaderboard-you')).toBeVisible({ timeout: 15_000 })
   await page.getByTestId('leaderboard-close-btn').click()
-})
-
-Then('my wallet LKBOX balance should decrease by {int}', async ({ page }, decrease: number) => {
-  const snapshot = lkboxBalanceSnapshots.get(page) ?? 0
-  await expect(async () => {
-    const text = await page.getByTestId('lkbox-balance').textContent()
-    const current = parseFloat((text ?? '0').replace(/[^0-9.]/g, ''))
-    expect(current).toBe(snapshot - decrease)
-  }).toPass({ timeout: 30_000 })
 })

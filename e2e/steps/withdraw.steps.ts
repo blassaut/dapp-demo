@@ -17,10 +17,6 @@ When('I click "Withdraw"', async ({ page }) => {
   await page.getByTestId('withdraw-btn').click()
 })
 
-Then('the withdraw button should be disabled', async ({ page }) => {
-  await expect(page.getByTestId('withdraw-btn')).toBeDisabled()
-})
-
 Then('my locked balance should have decreased by {int}', async ({ page }, decrease: number) => {
   const snapshot = lockedBalanceSnapshots.get(page) ?? 0
   await expect(async () => {
