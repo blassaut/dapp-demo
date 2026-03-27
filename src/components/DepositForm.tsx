@@ -42,6 +42,7 @@ export function DepositForm({ appState, lkboxBalance, onDeposit }: DepositFormPr
   return (
     <div className="space-y-3">
       <p className="text-[10px] font-mono text-muted/40 uppercase tracking-wider">Deposit LKBOX</p>
+      <p className="text-[11px] font-mono text-muted/30">Lock your LKBOX to climb the leaderboard</p>
       <div className="relative">
         <input
           data-testid="deposit-input"
