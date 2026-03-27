@@ -45,7 +45,7 @@ Then('I should see my LKBOX balance increase by {int}', async ({ page }, increas
   await expect(async () => {
     const text = await page.getByTestId('lkbox-balance').textContent()
     const current = parseFloat((text ?? '0').replace(/[^0-9.]/g, ''))
-    expect(current).toBeGreaterThanOrEqual(snapshot + increase)
+    expect(current).toBe(snapshot + increase)
   }).toPass({ timeout: 30_000 })
 })
 

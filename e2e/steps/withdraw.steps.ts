@@ -26,7 +26,7 @@ Then('my locked balance should have decreased by {int}', async ({ page }, decrea
   await expect(async () => {
     const text = await page.getByTestId('locked-balance').textContent()
     const current = parseFloat((text ?? '0').replace(/[^0-9.]/g, ''))
-    expect(current).toBeLessThanOrEqual(snapshot - decrease + 0.01)
+    expect(current).toBe(snapshot - decrease)
   }).toPass({ timeout: 30_000 })
 })
 
@@ -35,6 +35,6 @@ Then('my wallet LKBOX balance should increase by {int}', async ({ page }, increa
   await expect(async () => {
     const text = await page.getByTestId('lkbox-balance').textContent()
     const current = parseFloat((text ?? '0').replace(/[^0-9.]/g, ''))
-    expect(current).toBeGreaterThanOrEqual(snapshot + increase - 0.01)
+    expect(current).toBe(snapshot + increase)
   }).toPass({ timeout: 30_000 })
 })
