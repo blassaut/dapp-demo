@@ -70,7 +70,9 @@ export default function App() {
   })
 
   const [showLeaderboard, setShowLeaderboard] = useState(false)
-  const { entries: leaderboardEntries, loading: leaderboardLoading } = useLeaderboard(lockboxAddress, rpcUrl)
+  const leaderboardAddress = isValidAddress(lockboxAddress) ? lockboxAddress : HOODI_CONTRACT_ADDRESS
+  const leaderboardRpc = isValidAddress(lockboxAddress) ? rpcUrl : HOODI_RPC_URL
+  const { entries: leaderboardEntries, loading: leaderboardLoading } = useLeaderboard(leaderboardAddress, leaderboardRpc)
 
   if (!hasAnyValidAddress) return <ConfigError />
 

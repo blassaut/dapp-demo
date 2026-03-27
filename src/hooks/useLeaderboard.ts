@@ -64,8 +64,8 @@ export function useLeaderboard(lockboxAddress: string, rpcUrl: string) {
           .map(([address, lockedBalance]) => ({ address, lockedBalance }))
 
         setEntries(sorted)
-      } catch {
-        // silently fail - leaderboard is non-critical
+      } catch (err) {
+        console.warn('[leaderboard] fetch failed:', err)
       } finally {
         if (!cancelled) setLoading(false)
       }
