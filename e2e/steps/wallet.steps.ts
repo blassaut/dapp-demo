@@ -4,6 +4,7 @@
 import { expect } from '@playwright/test'
 import { createBdd } from 'playwright-bdd'
 import { test } from './fixtures'
+import { lkboxBalanceSnapshots, lockedBalanceSnapshots } from './common.steps'
 
 const { Given, When, Then } = createBdd(test)
 
@@ -75,6 +76,11 @@ Then('I should see my truncated wallet address', async ({ page }) => {
 
 Then('I should see my LKBOX balance', async ({ page }) => {
   await expect(page.getByTestId('lkbox-balance')).toBeVisible()
+  // Snapshot balances for relative assertions later in the scenario
+  const lkboxText = await page.getByTestId('lkbox-balance').textContent()
+  lkboxBalanceSnapshots.set(page, parseFloat((lkboxText ?? '0').replace(/[^0-9.]/g, '')))
+  const lockedText = await page.getByTestId('locked-balance').textContent()
+  lockedBalanceSnapshots.set(page, parseFloat((lockedText ?? '0').replace(/[^0-9.]/g, '')))
 })
 
 Then('I should see the "Switch to Hoodi" button', async ({ page }) => {
