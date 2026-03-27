@@ -48,7 +48,17 @@ export function WithdrawForm({ appState, lockedBalance, onWithdraw }: WithdrawFo
           step="1"
           className="w-full px-4 py-3.5 rounded-xl bg-dark-900/60 border border-white/[0.06] text-light font-mono text-lg placeholder:text-muted/20 focus:border-teal-400/30 focus:outline-none focus:ring-1 focus:ring-teal-400/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         />
-        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono text-muted/30">LKBOX</span>
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setAmount(lockedBalance)}
+            disabled={isBusy || !lockedBalance || lockedBalance === '0'}
+            className="text-[9px] font-mono text-teal-400/50 hover:text-teal-400 border border-teal-400/20 hover:border-teal-400/40 rounded px-1.5 py-0.5 transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
+          >
+            MAX
+          </button>
+          <span className="text-xs font-mono text-muted/30">LKBOX</span>
+        </div>
       </div>
       <button
         data-testid="withdraw-btn"
