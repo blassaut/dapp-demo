@@ -15,6 +15,7 @@ import { WithdrawForm } from './components/WithdrawForm'
 import { StatusPanel } from './components/StatusPanel'
 import { TxHistory } from './components/TxHistory'
 import { Leaderboard } from './components/Leaderboard'
+import { useLeaderboard } from './hooks/useLeaderboard'
 
 import { HARDHAT_CHAIN_ID, HARDHAT_RPC_URL, HOODI_RPC_URL } from './lib/constants'
 
@@ -69,6 +70,7 @@ export default function App() {
   })
 
   const [showLeaderboard, setShowLeaderboard] = useState(false)
+  const { entries: leaderboardEntries, loading: leaderboardLoading } = useLeaderboard(lockboxAddress, rpcUrl)
 
   if (!hasAnyValidAddress) return <ConfigError />
 
@@ -108,7 +110,7 @@ export default function App() {
                 &#10005;
               </button>
             </div>
-            <Leaderboard lockboxAddress={lockboxAddress} rpcUrl={rpcUrl} currentAddress={address} />
+            <Leaderboard entries={leaderboardEntries} loading={leaderboardLoading} currentAddress={address} />
           </div>
         </div>
       )}

@@ -1,8 +1,8 @@
-import { useLeaderboard, formatLeaderboardAmount } from '../hooks/useLeaderboard'
+import { formatLeaderboardAmount, type LeaderboardEntry } from '../hooks/useLeaderboard'
 
 interface LeaderboardProps {
-  lockboxAddress: string
-  rpcUrl: string
+  entries: LeaderboardEntry[]
+  loading: boolean
   currentAddress?: string | null
 }
 
@@ -12,9 +12,7 @@ function truncateAddress(addr: string): string {
 
 const RANK_BADGES = ['\u{1F947}', '\u{1F948}', '\u{1F949}'] as const
 
-export function Leaderboard({ lockboxAddress, rpcUrl, currentAddress }: LeaderboardProps) {
-  const { entries, loading } = useLeaderboard(lockboxAddress, rpcUrl)
-
+export function Leaderboard({ entries, loading, currentAddress }: LeaderboardProps) {
   if (loading) {
     return (
       <div className="rounded-2xl border border-white/[0.06] bg-dark-800/30 backdrop-blur-sm p-4">
