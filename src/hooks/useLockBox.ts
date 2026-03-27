@@ -10,8 +10,8 @@ interface UseLockBoxProps {
 }
 
 export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxProps): LockBoxState {
-  const [balance, setBalance] = useState('0')
-  const [contractBalance, setContractBalance] = useState('0')
+  const [lkboxBalance, setLkboxBalance] = useState('0')
+  const [lockedBalance, setLockedBalance] = useState('0')
   const [appState, setAppState] = useState(AppState.Disconnected)
   const [statusMessage, setStatusMessage] = useState('')
   const [lastAction, setLastAction] = useState('')
@@ -19,13 +19,13 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
   const [history, setHistory] = useState<TxRecord[]>([])
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Derive base state from connection/network
   useEffect(() => {
     if (!isConnected) {
       setAppState(AppState.Disconnected)
       setStatusMessage('')
       setLastAction('')
-      setBalance('0')
+      setLkboxBalance('0')
+      setLockedBalance('0')
     } else if (!isSupported) {
       setAppState(AppState.UnsupportedNetwork)
       setStatusMessage('')
@@ -35,13 +35,22 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
     }
   }, [isConnected, isSupported])
 
-  // Fetch locked balance and history on connect
   useEffect(() => {
     if (!provider || !isConnected || !isSupported) return
-    provider.getBalance().then(setBalance).catch(() => {})
-    provider.getContractBalance().then(setContractBalance).catch(() => {})
+    provider.getLKBOXBalance().then(setLkboxBalance).catch(() => {})
+    provider.getLockedBalance().then(setLockedBalance).catch(() => {})
     provider.getHistory().then(setHistory).catch(() => {})
   }, [provider, isConnected, isSupported])
+
+  const refreshBalances = useCallback(async () => {
+    if (!provider) return
+    const [newLkbox, newLocked] = await Promise.all([
+      provider.getLKBOXBalance(),
+      provider.getLockedBalance(),
+    ])
+    setLkboxBalance(newLkbox)
+    setLockedBalance(newLocked)
+  }, [provider])
 
   const refreshHistory = useCallback(() => {
     if (!provider) return
@@ -55,61 +64,20 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
     }, STATUS_TIMEOUT_MS)
   }, [])
 
-  const deposit = useCallback(
-    async (amount: string) => {
-      if (!provider) return
-      const parsed = parseFloat(amount)
-      if (isNaN(parsed) || parsed <= 0 || !isFinite(parsed)) return
-      setAppState(AppState.Pending)
-      setStatusMessage('Processing deposit...')
-      setLastAction('')
-      setLastTxHash(null)
-
-      try {
-        const txHash = await provider.deposit(amount)
-        const [newBalance, newContractBalance] = await Promise.all([
-          provider.getBalance(),
-          provider.getContractBalance(),
-        ])
-        setBalance(newBalance)
-        setContractBalance(newContractBalance)
-        setAppState(AppState.Confirmed)
-        setStatusMessage('')
-        setLastAction(`Deposit confirmed for ${amount} ETH`)
-        setLastTxHash(txHash)
-        refreshHistory()
-        returnToIdle()
-      } catch {
-        setAppState(AppState.Rejected)
-        setStatusMessage('')
-        setLastAction('Transaction rejected')
-        setLastTxHash(null)
-        returnToIdle()
-      }
-    },
-    [provider, returnToIdle, refreshHistory],
-  )
-
-  const withdraw = useCallback(async (amount: string) => {
+  const mint = useCallback(async (ethAmount: string) => {
     if (!provider) return
-    const parsed = parseFloat(amount)
+    const parsed = parseFloat(ethAmount)
     if (isNaN(parsed) || parsed <= 0 || !isFinite(parsed)) return
     setAppState(AppState.Pending)
-    setStatusMessage('Processing withdrawal...')
+    setStatusMessage('Minting LKBOX...')
     setLastAction('')
     setLastTxHash(null)
-
     try {
-      const txHash = await provider.withdraw(amount)
-      const [newBalance, newContractBalance] = await Promise.all([
-        provider.getBalance(),
-        provider.getContractBalance(),
-      ])
-      setBalance(newBalance)
-      setContractBalance(newContractBalance)
+      const txHash = await provider.mintLKBOX(ethAmount)
+      await refreshBalances()
       setAppState(AppState.Confirmed)
       setStatusMessage('')
-      setLastAction(`Withdrawal confirmed for ${amount} ETH`)
+      setLastAction(`Minted ${parsed * 1000} LKBOX`)
       setLastTxHash(txHash)
       refreshHistory()
       returnToIdle()
@@ -120,7 +88,73 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
       setLastTxHash(null)
       returnToIdle()
     }
-  }, [provider, returnToIdle])
+  }, [provider, refreshBalances, refreshHistory, returnToIdle])
+
+  const deposit = useCallback(async (amount: string) => {
+    if (!provider) return
+    const parsed = parseFloat(amount)
+    if (isNaN(parsed) || parsed <= 0 || !isFinite(parsed)) return
+    setLastAction('')
+    setLastTxHash(null)
+
+    setAppState(AppState.Approving)
+    setStatusMessage('Approving LKBOX spending...')
+    try {
+      await provider.approveLKBOX(amount)
+    } catch {
+      setAppState(AppState.Rejected)
+      setStatusMessage('')
+      setLastAction('Approval rejected')
+      setLastTxHash(null)
+      returnToIdle()
+      return
+    }
+
+    setAppState(AppState.Depositing)
+    setStatusMessage('Depositing LKBOX...')
+    try {
+      const txHash = await provider.depositLKBOX(amount)
+      await refreshBalances()
+      setAppState(AppState.Confirmed)
+      setStatusMessage('')
+      setLastAction(`Deposited ${amount} LKBOX`)
+      setLastTxHash(txHash)
+      refreshHistory()
+      returnToIdle()
+    } catch {
+      setAppState(AppState.Rejected)
+      setStatusMessage('')
+      setLastAction('Deposit rejected')
+      setLastTxHash(null)
+      returnToIdle()
+    }
+  }, [provider, refreshBalances, refreshHistory, returnToIdle])
+
+  const withdraw = useCallback(async (amount: string) => {
+    if (!provider) return
+    const parsed = parseFloat(amount)
+    if (isNaN(parsed) || parsed <= 0 || !isFinite(parsed)) return
+    setAppState(AppState.Pending)
+    setStatusMessage('Withdrawing LKBOX...')
+    setLastAction('')
+    setLastTxHash(null)
+    try {
+      const txHash = await provider.withdrawLKBOX(amount)
+      await refreshBalances()
+      setAppState(AppState.Confirmed)
+      setStatusMessage('')
+      setLastAction(`Withdrew ${amount} LKBOX`)
+      setLastTxHash(txHash)
+      refreshHistory()
+      returnToIdle()
+    } catch {
+      setAppState(AppState.Rejected)
+      setStatusMessage('')
+      setLastAction('Transaction rejected')
+      setLastTxHash(null)
+      returnToIdle()
+    }
+  }, [provider, refreshBalances, refreshHistory, returnToIdle])
 
   useEffect(() => {
     return () => {
@@ -128,5 +162,5 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
     }
   }, [])
 
-  return { balance, contractBalance, appState, statusMessage, lastAction, lastTxHash, history, deposit, withdraw }
+  return { lkboxBalance, lockedBalance, appState, statusMessage, lastAction, lastTxHash, history, mint, deposit, withdraw }
 }
