@@ -6,10 +6,12 @@ import type { LockBoxProvider } from '../../lib/types'
 
 function mockProvider(overrides: Partial<LockBoxProvider> = {}): LockBoxProvider {
   return {
-    deposit: vi.fn().mockResolvedValue('0xtxhash'),
-    withdraw: vi.fn().mockResolvedValue('0xtxhash'),
-    getBalance: vi.fn().mockResolvedValue('0'),
-    getContractBalance: vi.fn().mockResolvedValue('0'),
+    mintLKBOX: vi.fn().mockResolvedValue('0xtxhash'),
+    approveLKBOX: vi.fn().mockResolvedValue('0xtxhash'),
+    depositLKBOX: vi.fn().mockResolvedValue('0xtxhash'),
+    withdrawLKBOX: vi.fn().mockResolvedValue('0xtxhash'),
+    getLKBOXBalance: vi.fn().mockResolvedValue('0'),
+    getLockedBalance: vi.fn().mockResolvedValue('0'),
     getHistory: vi.fn().mockResolvedValue([]),
     ...overrides,
   }
@@ -25,7 +27,8 @@ describe('useLockBox', () => {
       useLockBox({ provider: null, isConnected: false, isSupported: false }),
     )
     expect(result.current.appState).toBe(AppState.Disconnected)
-    expect(result.current.balance).toBe('0')
+    expect(result.current.lkboxBalance).toBe('0')
+    expect(result.current.lockedBalance).toBe('0')
   })
 
   it('moves to unsupported-network when connected but not supported', () => {
@@ -42,32 +45,30 @@ describe('useLockBox', () => {
     expect(result.current.appState).toBe(AppState.Idle)
   })
 
-  it('transitions to pending then confirmed on successful deposit', async () => {
-    let resolveDeposit!: () => void
-    const depositPromise = new Promise<void>((resolve) => { resolveDeposit = resolve })
+  it('transitions through mint lifecycle: pending -> confirmed -> idle', async () => {
+    let resolveMint!: (hash: string) => void
+    const mintPromise = new Promise<string>((resolve) => { resolveMint = resolve })
     const provider = mockProvider({
-      deposit: vi.fn().mockReturnValue(depositPromise),
-      getBalance: vi.fn().mockResolvedValue('0.5'),
+      mintLKBOX: vi.fn().mockReturnValue(mintPromise),
+      getLKBOXBalance: vi.fn().mockResolvedValue('1000'),
     })
     const { result } = renderHook(() =>
       useLockBox({ provider, isConnected: true, isSupported: true }),
     )
 
-    // Start deposit but don't resolve yet
-    let depositCallPromise!: Promise<void>
+    let mintCallPromise!: Promise<void>
     act(() => {
-      depositCallPromise = result.current.deposit('0.5')
+      mintCallPromise = result.current.mint('1')
     })
     expect(result.current.appState).toBe(AppState.Pending)
 
-    // Now resolve the deposit
     await act(async () => {
-      resolveDeposit()
-      await depositCallPromise
+      resolveMint('0xtxhash')
+      await mintCallPromise
     })
 
     expect(result.current.appState).toBe(AppState.Confirmed)
-    expect(result.current.balance).toBe('0.5')
+    expect(result.current.lastAction).toContain('1000 LKBOX')
 
     act(() => {
       vi.advanceTimersByTime(5000)
@@ -75,19 +76,44 @@ describe('useLockBox', () => {
     expect(result.current.appState).toBe(AppState.Idle)
   })
 
-  it('transitions to rejected on deposit rejection', async () => {
+  it('transitions to approving then depositing then confirmed on successful deposit', async () => {
     const provider = mockProvider({
-      deposit: vi.fn().mockRejectedValue(new Error('user rejected')),
+      approveLKBOX: vi.fn().mockResolvedValue('0xapprovehash'),
+      depositLKBOX: vi.fn().mockResolvedValue('0xdeposithash'),
+      getLKBOXBalance: vi.fn().mockResolvedValue('50'),
+      getLockedBalance: vi.fn().mockResolvedValue('50'),
     })
     const { result } = renderHook(() =>
       useLockBox({ provider, isConnected: true, isSupported: true }),
     )
 
     await act(async () => {
-      await result.current.deposit('0.5')
+      await result.current.deposit('50')
+    })
+
+    expect(result.current.appState).toBe(AppState.Confirmed)
+    expect(result.current.lastAction).toBe('Deposited 50 LKBOX')
+
+    act(() => {
+      vi.advanceTimersByTime(5000)
+    })
+    expect(result.current.appState).toBe(AppState.Idle)
+  })
+
+  it('transitions to rejected on approve rejection', async () => {
+    const provider = mockProvider({
+      approveLKBOX: vi.fn().mockRejectedValue(new Error('user rejected')),
+    })
+    const { result } = renderHook(() =>
+      useLockBox({ provider, isConnected: true, isSupported: true }),
+    )
+
+    await act(async () => {
+      await result.current.deposit('50')
     })
 
     expect(result.current.appState).toBe(AppState.Rejected)
+    expect(result.current.lastAction).toBe('Approval rejected')
 
     act(() => {
       vi.advanceTimersByTime(5000)
@@ -95,52 +121,29 @@ describe('useLockBox', () => {
     expect(result.current.appState).toBe(AppState.Idle)
   })
 
-  it('updates status messages correctly through deposit lifecycle', async () => {
-    let resolveDeposit!: () => void
-    const depositPromise = new Promise<void>((resolve) => { resolveDeposit = resolve })
+  it('transitions to rejected on deposit rejection after approval', async () => {
     const provider = mockProvider({
-      deposit: vi.fn().mockReturnValue(depositPromise),
-      getBalance: vi.fn().mockResolvedValue('0.1'),
-    })
-    const { result } = renderHook(() =>
-      useLockBox({ provider, isConnected: true, isSupported: true }),
-    )
-
-    let depositCallPromise!: Promise<void>
-    act(() => {
-      depositCallPromise = result.current.deposit('0.1')
-    })
-    expect(result.current.statusMessage).toBe('Processing deposit...')
-
-    await act(async () => {
-      resolveDeposit()
-      await depositCallPromise
-    })
-
-    expect(result.current.lastAction).toBe('Deposit confirmed for 0.1 ETH')
-  })
-
-  it('shows rejection message on rejection', async () => {
-    const provider = mockProvider({
-      deposit: vi.fn().mockRejectedValue(new Error('rejected')),
+      approveLKBOX: vi.fn().mockResolvedValue('0xapprovehash'),
+      depositLKBOX: vi.fn().mockRejectedValue(new Error('user rejected')),
     })
     const { result } = renderHook(() =>
       useLockBox({ provider, isConnected: true, isSupported: true }),
     )
 
     await act(async () => {
-      await result.current.deposit('0.5')
+      await result.current.deposit('50')
     })
 
-    expect(result.current.lastAction).toBe('Transaction rejected')
+    expect(result.current.appState).toBe(AppState.Rejected)
+    expect(result.current.lastAction).toBe('Deposit rejected')
   })
 
   it('transitions through withdraw lifecycle: pending -> confirmed -> idle', async () => {
-    let resolveWithdraw!: () => void
-    const withdrawPromise = new Promise<void>((resolve) => { resolveWithdraw = resolve })
+    let resolveWithdraw!: (hash: string) => void
+    const withdrawPromise = new Promise<string>((resolve) => { resolveWithdraw = resolve })
     const provider = mockProvider({
-      withdraw: vi.fn().mockReturnValue(withdrawPromise),
-      getBalance: vi.fn().mockResolvedValue('0'),
+      withdrawLKBOX: vi.fn().mockReturnValue(withdrawPromise),
+      getLockedBalance: vi.fn().mockResolvedValue('0'),
     })
     const { result } = renderHook(() =>
       useLockBox({ provider, isConnected: true, isSupported: true }),
@@ -148,19 +151,18 @@ describe('useLockBox', () => {
 
     let withdrawCallPromise!: Promise<void>
     act(() => {
-      withdrawCallPromise = result.current.withdraw('0.5')
+      withdrawCallPromise = result.current.withdraw('50')
     })
     expect(result.current.appState).toBe(AppState.Pending)
-    expect(result.current.statusMessage).toBe('Processing withdrawal...')
+    expect(result.current.statusMessage).toBe('Withdrawing LKBOX...')
 
     await act(async () => {
-      resolveWithdraw()
+      resolveWithdraw('0xtxhash')
       await withdrawCallPromise
     })
 
     expect(result.current.appState).toBe(AppState.Confirmed)
-    expect(result.current.balance).toBe('0')
-    expect(result.current.lastAction).toBe('Withdrawal confirmed for 0.5 ETH')
+    expect(result.current.lastAction).toBe('Withdrew 50 LKBOX')
 
     act(() => {
       vi.advanceTimersByTime(5000)
@@ -170,45 +172,17 @@ describe('useLockBox', () => {
 
   it('transitions to rejected on withdraw rejection', async () => {
     const provider = mockProvider({
-      withdraw: vi.fn().mockRejectedValue(new Error('user rejected')),
-      getBalance: vi.fn().mockResolvedValue('0.5'),
+      withdrawLKBOX: vi.fn().mockRejectedValue(new Error('user rejected')),
     })
     const { result } = renderHook(() =>
       useLockBox({ provider, isConnected: true, isSupported: true }),
     )
 
     await act(async () => {
-      await result.current.withdraw('0.5')
+      await result.current.withdraw('50')
     })
 
     expect(result.current.appState).toBe(AppState.Rejected)
     expect(result.current.lastAction).toBe('Transaction rejected')
-  })
-
-  it('preserves balance after deposit rejection when balance > 0', async () => {
-    let currentBalance = '0'
-    const provider = mockProvider({
-      deposit: vi.fn()
-        .mockResolvedValueOnce(undefined)
-        .mockRejectedValueOnce(new Error('rejected')),
-      getBalance: vi.fn().mockImplementation(() => Promise.resolve(currentBalance)),
-    })
-    const { result } = renderHook(() =>
-      useLockBox({ provider, isConnected: true, isSupported: true }),
-    )
-
-    currentBalance = '0.5'
-    await act(async () => {
-      await result.current.deposit('0.5')
-    })
-    expect(result.current.balance).toBe('0.5')
-
-    act(() => { vi.advanceTimersByTime(5000) })
-
-    await act(async () => {
-      await result.current.deposit('0.3')
-    })
-    expect(result.current.balance).toBe('0.5')
-    expect(result.current.appState).toBe(AppState.Rejected)
   })
 })

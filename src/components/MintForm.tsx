@@ -8,7 +8,7 @@ interface MintFormProps {
   onMint: (ethAmount: string) => void
 }
 
-export function MintForm({ appState, walletBalance, onMint }: MintFormProps) {
+export function MintForm({ appState, walletBalance: _walletBalance, onMint }: MintFormProps) {
   const [ethAmount, setEthAmount] = useState('')
   const prevAppState = useRef(appState)
 
