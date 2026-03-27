@@ -62,7 +62,7 @@ export function TxHistory({ records }: TxHistoryProps) {
       {hasMore && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-[10px] font-mono text-muted/30 hover:text-muted/50 transition-colors w-full text-center py-1"
+          className="text-[10px] font-mono text-teal-400/40 hover:text-teal-400/70 border border-teal-400/15 hover:border-teal-400/30 rounded-lg transition-colors w-full text-center py-1.5"
         >
           {expanded ? 'Show less' : `Show all (${records.length})`}
         </button>
