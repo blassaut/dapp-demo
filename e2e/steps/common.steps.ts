@@ -91,12 +91,13 @@ Given('I have deposited {int} LKBOX', async ({ page, wallet }) => {
 
   // Approve popup
   popup = await popupPromise
+  // Register deposit popup listener BEFORE confirming approval to avoid race condition
+  popupPromise = page.context().waitForEvent('page')
   await popup.getByTestId('confirm-footer-button').click()
   if (!popup.isClosed()) await popup.waitForEvent('close')
   await page.bringToFront()
 
   // Deposit popup
-  popupPromise = page.context().waitForEvent('page')
   popup = await popupPromise
   await popup.getByTestId('confirm-footer-button').click()
   if (!popup.isClosed()) await popup.waitForEvent('close')
@@ -139,10 +140,11 @@ Given('I have withdrawn all my LKBOX', async ({ page, wallet }) => {
   popupPromise = page.context().waitForEvent('page')
   await page.getByTestId('deposit-btn').click()
   popup = await popupPromise
+  // Register deposit popup listener BEFORE confirming approval to avoid race condition
+  popupPromise = page.context().waitForEvent('page')
   await popup.getByTestId('confirm-footer-button').click()
   if (!popup.isClosed()) await popup.waitForEvent('close')
   await page.bringToFront()
-  popupPromise = page.context().waitForEvent('page')
   popup = await popupPromise
   await popup.getByTestId('confirm-footer-button').click()
   if (!popup.isClosed()) await popup.waitForEvent('close')

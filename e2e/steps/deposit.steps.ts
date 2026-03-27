@@ -22,13 +22,14 @@ When('I confirm the approval in MetaMask', async ({ page }) => {
   const pendingPopup = (page as any).__pendingPopup as Promise<Page> | null
   if (!pendingPopup) throw new Error('No pending popup')
   const popup = await pendingPopup
+
+  // Register deposit popup listener BEFORE confirming approval to avoid race condition
+  const depositPopupPromise = page.context().waitForEvent('page')
   await popup.getByTestId('confirm-footer-button').click()
   if (!popup.isClosed()) await popup.waitForEvent('close')
-  ;(page as any).__pendingPopup = null
   await page.bringToFront()
 
-  // Wait for the deposit popup (second transaction)
-  ;(page as any).__pendingPopup = page.context().waitForEvent('page')
+  ;(page as any).__pendingPopup = depositPopupPromise
 })
 
 When('I confirm the deposit in MetaMask', async ({ page }) => {
