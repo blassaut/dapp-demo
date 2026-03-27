@@ -84,12 +84,6 @@ Given('I have deposited {int} LKBOX', async ({ page, wallet }) => {
     expect(parseBalance(text)).toBeGreaterThanOrEqual(100)
   }).toPass({ timeout: 30_000 })
 
-  // Snapshot balances BEFORE deposit for relative assertions
-  const lkboxBefore = await page.getByTestId('lkbox-balance').textContent()
-  lkboxBalanceSnapshots.set(page, parseBalance(lkboxBefore))
-  const lockedBefore = await page.getByTestId('locked-balance').textContent()
-  lockedBalanceSnapshots.set(page, parseBalance(lockedBefore))
-
   // Deposit 50 LKBOX
   await page.getByTestId('deposit-input').fill('50')
   popupPromise = page.context().waitForEvent('page')
@@ -112,6 +106,12 @@ Given('I have deposited {int} LKBOX', async ({ page, wallet }) => {
     const text = await page.getByTestId('locked-balance').textContent()
     expect(parseBalance(text)).toBeGreaterThanOrEqual(50)
   }).toPass({ timeout: 30_000 })
+
+  // Snapshot AFTER deposit so withdraw scenarios have correct baseline
+  const lkboxAfter = await page.getByTestId('lkbox-balance').textContent()
+  lkboxBalanceSnapshots.set(page, parseBalance(lkboxAfter))
+  const lockedAfter = await page.getByTestId('locked-balance').textContent()
+  lockedBalanceSnapshots.set(page, parseBalance(lockedAfter))
 })
 
 Given('I have withdrawn all my LKBOX', async ({ page, wallet }) => {

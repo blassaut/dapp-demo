@@ -5,7 +5,7 @@ Feature: Failure scenarios are handled gracefully
 
   Scenario: Withdraw button is disabled when amount exceeds locked balance
     Given I have deposited 50 LKBOX
-    When I enter "100" in the withdraw input
+    When I enter "999999" in the withdraw input
     Then the withdraw button should be disabled
 
   Scenario: Visitor rejects deposit approval
