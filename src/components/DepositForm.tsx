@@ -41,8 +41,15 @@ export function DepositForm({ appState, lkboxBalance, onDeposit }: DepositFormPr
 
   return (
     <div className="space-y-3">
-      <p className="text-[10px] font-mono text-muted/40 uppercase tracking-wider">Deposit LKBOX</p>
-      <p className="text-[11px] font-mono text-muted/30">Lock your LKBOX to climb the leaderboard</p>
+      <div className="flex items-center gap-1.5">
+        <p className="text-[10px] font-mono text-muted/40 uppercase tracking-wider">Deposit LKBOX</p>
+        <span className="relative group">
+          <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full border border-muted/20 text-[8px] font-mono text-muted/30 cursor-help">i</span>
+          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 rounded-lg bg-dark-900 border border-white/[0.08] text-[10px] font-mono text-muted/50 whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity">
+            Lock your LKBOX to climb the leaderboard
+          </span>
+        </span>
+      </div>
       <div className="relative">
         <input
           data-testid="deposit-input"
