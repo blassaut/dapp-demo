@@ -25,16 +25,21 @@ function txLabel(type: TxRecord['type']): string {
 }
 
 export function TxHistory({ records }: TxHistoryProps) {
-  const [expanded, setExpanded] = useState(false)
+  const [page, setPage] = useState(0)
 
   if (records.length === 0) return null
 
-  const visible = expanded ? records : records.slice(0, PAGE_SIZE)
-  const hasMore = records.length > PAGE_SIZE
+  const totalPages = Math.ceil(records.length / PAGE_SIZE)
+  const visible = records.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
 
   return (
     <div data-testid="tx-history" className="space-y-1.5">
-      <p className="text-[10px] font-mono text-muted/40 uppercase tracking-wider">History</p>
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] font-mono text-muted/40 uppercase tracking-wider">History</p>
+        {totalPages > 1 && (
+          <p className="text-[10px] font-mono text-muted/25">{page + 1}/{totalPages}</p>
+        )}
+      </div>
       <div className="space-y-1">
         {visible.map((record) => (
           <a
@@ -59,13 +64,23 @@ export function TxHistory({ records }: TxHistoryProps) {
           </a>
         ))}
       </div>
-      {hasMore && (
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="text-[10px] font-mono text-teal-400/40 hover:text-teal-400/70 border border-teal-400/15 hover:border-teal-400/30 rounded-lg transition-colors w-full text-center py-1.5"
-        >
-          {expanded ? 'Show less' : `Show all (${records.length})`}
-        </button>
+      {totalPages > 1 && (
+        <div className="flex gap-2">
+          <button
+            onClick={() => setPage(page - 1)}
+            disabled={page === 0}
+            className="flex-1 text-[10px] font-mono text-teal-400/40 hover:text-teal-400/70 border border-teal-400/15 hover:border-teal-400/30 rounded-lg transition-colors py-1.5 disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:text-teal-400/40 disabled:hover:border-teal-400/15"
+          >
+            Prev
+          </button>
+          <button
+            onClick={() => setPage(page + 1)}
+            disabled={page >= totalPages - 1}
+            className="flex-1 text-[10px] font-mono text-teal-400/40 hover:text-teal-400/70 border border-teal-400/15 hover:border-teal-400/30 rounded-lg transition-colors py-1.5 disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:text-teal-400/40 disabled:hover:border-teal-400/15"
+          >
+            Next
+          </button>
+        </div>
       )}
     </div>
   )
