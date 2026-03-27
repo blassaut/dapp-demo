@@ -83,6 +83,7 @@ export default function App() {
       {/* Top bar */}
       <div className="fixed top-4 left-4 z-10">
         <button
+          data-testid="leaderboard-btn"
           onClick={() => setShowLeaderboard(!showLeaderboard)}
           className="text-[10px] font-mono text-muted/40 hover:text-teal-400/70 border border-white/[0.08] hover:border-teal-400/30 rounded-lg px-3 py-1.5 backdrop-blur-sm bg-dark-800/50 transition-all duration-200"
         >
@@ -106,6 +107,7 @@ export default function App() {
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-heading font-bold text-light">Leaderboard</span>
               <button
+                data-testid="leaderboard-close-btn"
                 onClick={() => setShowLeaderboard(false)}
                 className="text-muted/40 hover:text-light transition-colors text-sm"
               >

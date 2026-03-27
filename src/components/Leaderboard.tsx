@@ -51,7 +51,7 @@ export function Leaderboard({ entries, loading, currentAddress }: LeaderboardPro
                 >{isYou && RANK_BADGES[i] ? RANK_BADGES[i] : `${i + 1}.`}</span>
                 <span className={`text-[10px] font-mono ${isYou ? 'text-teal-400/70' : 'text-muted/40'}`}>
                   {truncateAddress(entry.address)}
-                  {isYou && <span className="ml-1 text-teal-400/50">(you)</span>}
+                  {isYou && <span data-testid="leaderboard-you" className="ml-1 text-teal-400/50">(you)</span>}
                 </span>
               </div>
               <span className="text-[10px] font-mono text-teal-400/60 whitespace-nowrap">
