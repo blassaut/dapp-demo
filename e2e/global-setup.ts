@@ -2,8 +2,8 @@
  * Global setup for E2E tests.
  *
  * 1. Start a local Hardhat node (localhost:8545)
- * 2. Deploy the LockBox contract
- * 3. Write the contract address to .env.e2e so Vite can read it
+ * 2. Deploy LKBOXToken and LockBox contracts
+ * 3. Write both contract addresses to .env.e2e so Vite can read them
  *
  * NOTE: dappwright browser + MetaMask bootstrap happens inside the
  * test fixtures (see e2e/steps/fixtures.ts) because dappwright needs
@@ -62,23 +62,28 @@ async function globalSetup(): Promise<void> {
   await waitForHardhatNode()
   console.log('[e2e] Hardhat node is running on http://127.0.0.1:8545')
 
-  // Deploy the LockBox contract
-  console.log('[e2e] Deploying LockBox contract...')
+  // Deploy LKBOXToken and LockBox contracts
+  console.log('[e2e] Deploying LKBOXToken and LockBox contracts...')
   const deployOutput = execSync('npx hardhat run scripts/deploy.ts --network localhost', {
     cwd: ROOT,
     encoding: 'utf-8',
   })
 
-  const addressMatch = deployOutput.match(/0x[a-fA-F0-9]{40}/)
-  if (!addressMatch) {
-    throw new Error(`Failed to extract contract address from deploy output:\n${deployOutput}`)
+  const addressMatches = deployOutput.match(/0x[a-fA-F0-9]{40}/g)
+  if (!addressMatches || addressMatches.length < 2) {
+    throw new Error(`Failed to extract both contract addresses from deploy output:\n${deployOutput}`)
   }
 
-  const contractAddress = addressMatch[0]
-  console.log(`[e2e] LockBox deployed at ${contractAddress}`)
+  const tokenAddress = addressMatches[0]
+  const lockboxAddress = addressMatches[1]
+  console.log(`[e2e] LKBOXToken deployed at ${tokenAddress}`)
+  console.log(`[e2e] LockBox deployed at ${lockboxAddress}`)
 
   // Write .env.e2e (not .env - never overwrite the user's Hoodi config)
-  writeFileSync(resolve(ROOT, '.env.e2e'), `VITE_HARDHAT_CONTRACT_ADDRESS=${contractAddress}\n`)
+  writeFileSync(
+    resolve(ROOT, '.env.e2e'),
+    `VITE_HARDHAT_TOKEN_ADDRESS=${tokenAddress}\nVITE_HARDHAT_CONTRACT_ADDRESS=${lockboxAddress}\n`,
+  )
 
   console.log('[e2e] Global setup complete')
 }
