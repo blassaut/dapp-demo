@@ -12,3 +12,4 @@ Feature: Visitor deposits LKBOX
     Then my locked balance should have increased by 50
     And my wallet LKBOX balance should decrease by 50
     And the transaction should appear in history
+    And I should appear on the leaderboard

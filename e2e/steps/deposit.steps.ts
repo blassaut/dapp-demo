@@ -50,6 +50,17 @@ Then('my locked balance should have increased by {int}', async ({ page }, increa
   }).toPass({ timeout: 30_000 })
 })
 
+Then('I should appear on the leaderboard', async ({ page }) => {
+  // Open the leaderboard panel
+  await page.getByRole('button', { name: 'Leaderboard' }).click()
+
+  // Wait for leaderboard to load and show the "(you)" marker
+  await expect(page.getByText('(you)')).toBeVisible({ timeout: 15_000 })
+
+  // Close the panel
+  await page.getByRole('button', { name: '\u2715' }).click()
+})
+
 Then('my wallet LKBOX balance should decrease by {int}', async ({ page }, decrease: number) => {
   const snapshot = lkboxBalanceSnapshots.get(page) ?? 0
   await expect(async () => {
