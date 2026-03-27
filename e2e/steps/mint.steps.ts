@@ -9,34 +9,34 @@ import { lkboxBalanceSnapshots } from './common.steps'
 
 const { When, Then } = createBdd(test)
 
-let pendingPopup: Promise<Page> | null = null
-
 When('I enter {string} ETH in the mint input', async ({ page }, amount: string) => {
   await page.getByTestId('mint-eth-input').fill(amount)
 })
 
 When('I click "Mint LKBOX"', async ({ page }) => {
-  pendingPopup = page.context().waitForEvent('page')
+  ;(page as any).__pendingPopup = page.context().waitForEvent('page')
   await page.getByTestId('mint-lkbox-btn').click()
 })
 
 When('I confirm the transaction in MetaMask', async ({ page }) => {
+  const pendingPopup = (page as any).__pendingPopup as Promise<Page> | null
   if (!pendingPopup) throw new Error('No pending popup')
   const popup = await pendingPopup
   await popup.getByTestId('confirm-footer-button').click()
   if (!popup.isClosed()) await popup.waitForEvent('close')
-  pendingPopup = null
+  ;(page as any).__pendingPopup = null
   await page.bringToFront()
 })
 
 When('I reject the transaction in MetaMask', async ({ page }) => {
+  const pendingPopup = (page as any).__pendingPopup as Promise<Page> | null
   if (!pendingPopup) throw new Error('No pending popup')
   const popup = await pendingPopup
   const cancelBtn = popup.getByTestId('confirm-footer-cancel-button')
   const rejectBtn = popup.getByTestId('cancel-btn')
   await cancelBtn.or(rejectBtn).click()
   if (!popup.isClosed()) await popup.waitForEvent('close')
-  pendingPopup = null
+  ;(page as any).__pendingPopup = null
   await page.bringToFront()
 })
 

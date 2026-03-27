@@ -9,35 +9,35 @@ import { lkboxBalanceSnapshots, lockedBalanceSnapshots } from './common.steps'
 
 const { When, Then } = createBdd(test)
 
-let pendingPopup: Promise<Page> | null = null
-
 When('I enter {string} in the deposit input', async ({ page }, amount: string) => {
   await page.getByTestId('deposit-input').fill(amount)
 })
 
 When('I click "Approve & Deposit"', async ({ page }) => {
-  pendingPopup = page.context().waitForEvent('page')
+  ;(page as any).__pendingPopup = page.context().waitForEvent('page')
   await page.getByTestId('deposit-btn').click()
 })
 
 When('I confirm the approval in MetaMask', async ({ page }) => {
+  const pendingPopup = (page as any).__pendingPopup as Promise<Page> | null
   if (!pendingPopup) throw new Error('No pending popup')
   const popup = await pendingPopup
   await popup.getByTestId('confirm-footer-button').click()
   if (!popup.isClosed()) await popup.waitForEvent('close')
-  pendingPopup = null
+  ;(page as any).__pendingPopup = null
   await page.bringToFront()
 
   // Wait for the deposit popup (second transaction)
-  pendingPopup = page.context().waitForEvent('page')
+  ;(page as any).__pendingPopup = page.context().waitForEvent('page')
 })
 
 When('I confirm the deposit in MetaMask', async ({ page }) => {
+  const pendingPopup = (page as any).__pendingPopup as Promise<Page> | null
   if (!pendingPopup) throw new Error('No pending popup')
   const popup = await pendingPopup
   await popup.getByTestId('confirm-footer-button').click()
   if (!popup.isClosed()) await popup.waitForEvent('close')
-  pendingPopup = null
+  ;(page as any).__pendingPopup = null
   await page.bringToFront()
 })
 
