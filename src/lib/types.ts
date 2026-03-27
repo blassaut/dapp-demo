@@ -10,22 +10,26 @@ export enum AppState {
   UnsupportedNetwork = 'unsupported-network',
   Idle = 'idle',
   Pending = 'pending',
+  Approving = 'approving',
+  Depositing = 'depositing',
   Confirmed = 'confirmed',
   Rejected = 'rejected',
 }
 
 export interface TxRecord {
-  type: 'deposit' | 'withdrawal'
+  type: 'mint' | 'deposit' | 'withdrawal'
   amount: string
   txHash: string
   blockNumber: number
 }
 
 export interface LockBoxProvider {
-  deposit(amount: string): Promise<string>
-  withdraw(amount: string): Promise<string>
-  getBalance(): Promise<string>
-  getContractBalance(): Promise<string>
+  mintLKBOX(ethAmount: string): Promise<string>
+  approveLKBOX(amount: string): Promise<string>
+  depositLKBOX(amount: string): Promise<string>
+  withdrawLKBOX(amount: string): Promise<string>
+  getLKBOXBalance(): Promise<string>
+  getLockedBalance(): Promise<string>
   getHistory(): Promise<TxRecord[]>
 }
 
@@ -47,13 +51,14 @@ export interface NetworkState {
 }
 
 export interface LockBoxState {
-  balance: string
-  contractBalance: string
+  lkboxBalance: string
+  lockedBalance: string
   appState: AppState
   statusMessage: string
   lastAction: string
   lastTxHash: string | null
   history: TxRecord[]
+  mint: (ethAmount: string) => Promise<void>
   deposit: (amount: string) => Promise<void>
   withdraw: (amount: string) => Promise<void>
 }

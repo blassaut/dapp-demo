@@ -8,3 +8,4 @@ export const HARDHAT_NETWORK_NAME = 'Hardhat'
 export const SUPPORTED_CHAIN_IDS = [HOODI_CHAIN_ID, HARDHAT_CHAIN_ID] as const
 export const BLOCK_RANGE = 29_999
 export const STATUS_TIMEOUT_MS = 5000
+export const MINT_RATE = 1000
