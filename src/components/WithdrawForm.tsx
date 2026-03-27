@@ -51,6 +51,7 @@ export function WithdrawForm({ appState, lockedBalance, onWithdraw }: WithdrawFo
         <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
           <button
             type="button"
+            data-testid="withdraw-max-btn"
             onClick={() => setAmount(lockedBalance)}
             disabled={isBusy || !lockedBalance || lockedBalance === '0'}
             className="text-[9px] font-mono text-teal-400/50 hover:text-teal-400 border border-teal-400/20 hover:border-teal-400/40 rounded px-1.5 py-0.5 transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
