@@ -22,6 +22,7 @@ Feature: Critical path - full user journey
     And I confirm the deposit in MetaMask
     Then my locked balance should have increased by 50
     And I should appear on the leaderboard
+    And I snapshot my current balances
 
     When I enter "50" in the withdraw input
     And I click "Withdraw"

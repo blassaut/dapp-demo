@@ -167,6 +167,13 @@ Given('I have withdrawn all my LKBOX', async ({ page, wallet }) => {
   }).toPass({ timeout: 30_000 })
 })
 
+Then('I snapshot my current balances', async ({ page }) => {
+  const lkboxText = await page.getByTestId('lkbox-balance').textContent()
+  lkboxBalanceSnapshots.set(page, parseBalance(lkboxText))
+  const lockedText = await page.getByTestId('locked-balance').textContent()
+  lockedBalanceSnapshots.set(page, parseBalance(lockedText))
+})
+
 Then('my LKBOX balance should be unchanged', async ({ page }) => {
   const snapshot = lkboxBalanceSnapshots.get(page) ?? 0
   const currentText = await page.getByTestId('lkbox-balance').textContent()
