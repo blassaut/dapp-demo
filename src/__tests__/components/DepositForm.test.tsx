@@ -83,4 +83,30 @@ describe('DepositForm', () => {
     fireEvent.change(screen.getByTestId('deposit-input'), { target: { value: '10' } })
     expect(screen.getByText('Max: 5 LKBOX')).toBeInTheDocument()
   })
+
+  it('renders "climb the leaderboard" hint text', () => {
+    render(<DepositForm {...defaultProps} />)
+    expect(screen.getByText('climb the leaderboard')).toBeInTheDocument()
+  })
+
+  it('renders MAX button', () => {
+    render(<DepositForm {...defaultProps} />)
+    expect(screen.getByTestId('deposit-max-btn')).toBeInTheDocument()
+  })
+
+  it('MAX button fills input with lkboxBalance', () => {
+    render(<DepositForm {...defaultProps} lkboxBalance="100" />)
+    fireEvent.click(screen.getByTestId('deposit-max-btn'))
+    expect(screen.getByTestId('deposit-input')).toHaveValue(100)
+  })
+
+  it('MAX button is disabled when lkboxBalance is 0', () => {
+    render(<DepositForm {...defaultProps} lkboxBalance="0" />)
+    expect(screen.getByTestId('deposit-max-btn')).toBeDisabled()
+  })
+
+  it('MAX button is disabled when busy', () => {
+    render(<DepositForm {...defaultProps} appState={AppState.Approving} lkboxBalance="100" />)
+    expect(screen.getByTestId('deposit-max-btn')).toBeDisabled()
+  })
 })
