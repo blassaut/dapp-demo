@@ -98,7 +98,7 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
     setLastTxHash(null)
 
     setAppState(AppState.Approving)
-    setStatusMessage('Approving LKBOX spending...')
+    setStatusMessage('Step 1/2: Approving LKBOX spending...')
     try {
       await provider.approveLKBOX(amount)
     } catch {
@@ -111,7 +111,7 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
     }
 
     setAppState(AppState.Depositing)
-    setStatusMessage('Depositing LKBOX...')
+    setStatusMessage('Step 2/2: Depositing LKBOX...')
     try {
       const txHash = await provider.depositLKBOX(amount)
       await refreshBalances()
