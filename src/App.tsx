@@ -112,6 +112,9 @@ export default function App() {
                     ) : (
                       <span className="text-xs font-mono text-muted/30 animate-pulse">loading...</span>
                     )}
+                    {isSupported && (
+                      <span data-testid="lkbox-balance" className="text-xs font-mono text-teal-400/70 block">{lkboxBalance} LKBOX</span>
+                    )}
                   </div>
                   <ConnectWallet
                     address={address}
@@ -124,7 +127,7 @@ export default function App() {
 
                 {isSupported && (
                   <>
-                    <LockedBalance lkboxBalance={lkboxBalance} lockedBalance={lockedBalance} />
+                    <LockedBalance lockedBalance={lockedBalance} />
 
                     <div className="h-px bg-white/[0.04]" />
                     <MintForm appState={appState} walletBalance={walletBalance} onMint={mint} />

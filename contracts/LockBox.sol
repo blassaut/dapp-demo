@@ -2,8 +2,11 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract LockBox {
+    using SafeERC20 for IERC20;
+
     IERC20 public token;
     mapping(address => uint256) public lockedBalance;
 
@@ -15,7 +18,7 @@ contract LockBox {
     }
 
     function deposit(uint256 amount) external {
-        token.transferFrom(msg.sender, address(this), amount);
+        token.safeTransferFrom(msg.sender, address(this), amount);
         lockedBalance[msg.sender] += amount;
         emit Deposited(msg.sender, amount);
     }
@@ -23,7 +26,7 @@ contract LockBox {
     function withdraw(uint256 amount) external {
         require(lockedBalance[msg.sender] >= amount, "Insufficient locked balance");
         lockedBalance[msg.sender] -= amount;
-        token.transfer(msg.sender, amount);
+        token.safeTransfer(msg.sender, amount);
         emit Withdrawn(msg.sender, amount);
     }
 }

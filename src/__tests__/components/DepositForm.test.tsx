@@ -35,7 +35,7 @@ describe('DepositForm', () => {
 
   it('disables deposit button during approving state', () => {
     render(<DepositForm {...defaultProps} appState={AppState.Approving} lkboxBalance="100" />)
-    expect(screen.getByTestId('deposit-btn')).toBeDisabled()
+    expect(screen.getByTestId('approve-btn')).toBeDisabled()
   })
 
   it('disables deposit button during depositing state', () => {
@@ -45,7 +45,7 @@ describe('DepositForm', () => {
 
   it('shows Approving... label during approving state', () => {
     render(<DepositForm {...defaultProps} appState={AppState.Approving} />)
-    expect(screen.getByTestId('deposit-btn')).toHaveTextContent('Approving...')
+    expect(screen.getByTestId('approve-btn')).toHaveTextContent('Approving...')
   })
 
   it('shows Depositing... label during depositing state', () => {
