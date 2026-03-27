@@ -25,7 +25,7 @@ Given('I am connected with the wrong network', async ({ page, wallet }) => {
     try {
       const popup = await popupPromise
       await popup.getByTestId('confirm-btn').click()
-      if (!popup.isClosed()) await popup.waitForEvent('close')
+      if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
     } catch {}
     await page.bringToFront()
   }
@@ -43,7 +43,7 @@ Given('I am on the wrong network', async ({ page, wallet }) => {
     try {
       const popup = await popupPromise
       await popup.getByTestId('confirm-btn').click()
-      if (!popup.isClosed()) await popup.waitForEvent('close')
+      if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
     } catch {}
     await page.bringToFront()
   }
@@ -58,7 +58,7 @@ When('I approve the connection in MetaMask', async ({ page }) => {
   const popup = await (page as any).__connectPopup as import('playwright-core').Page | null
   if (popup) {
     await popup.getByTestId('confirm-btn').click()
-    if (!popup.isClosed()) await popup.waitForEvent('close')
+    if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
   }
   // MetaMask may auto-connect without a popup if already authorized
   ;(page as any).__connectPopup = null

@@ -23,7 +23,7 @@ When('I confirm the transaction in MetaMask', async ({ page }) => {
   if (!pendingPopup) throw new Error('No pending popup')
   const popup = await pendingPopup
   await popup.getByTestId('confirm-footer-button').click()
-  if (!popup.isClosed()) await popup.waitForEvent('close')
+  if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
   ;(page as any).__pendingPopup = null
   await page.bringToFront()
 })
@@ -35,7 +35,7 @@ When('I reject the transaction in MetaMask', async ({ page }) => {
   const cancelBtn = popup.getByTestId('confirm-footer-cancel-button')
   const rejectBtn = popup.getByTestId('cancel-btn')
   await cancelBtn.or(rejectBtn).click()
-  if (!popup.isClosed()) await popup.waitForEvent('close')
+  if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
   ;(page as any).__pendingPopup = null
   await page.bringToFront()
 })

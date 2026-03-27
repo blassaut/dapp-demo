@@ -27,7 +27,7 @@ async function connectWallet(page: Page) {
     try {
       const popup = await popupPromise
       await popup.getByTestId('confirm-btn').click()
-      if (!popup.isClosed()) await popup.waitForEvent('close')
+      if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
     } catch {
       // MetaMask may auto-connect
     }
@@ -53,7 +53,7 @@ Given('I have {int} LKBOX in my wallet', async ({ page, wallet }) => {
   await page.getByTestId('mint-lkbox-btn').click()
   const popup = await popupPromise
   await popup.getByTestId('confirm-footer-button').click()
-  if (!popup.isClosed()) await popup.waitForEvent('close')
+  if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
   await page.bringToFront()
 
   await expect(async () => {
@@ -76,7 +76,7 @@ Given('I have deposited {int} LKBOX', async ({ page, wallet }) => {
   await page.getByTestId('mint-lkbox-btn').click()
   let popup = await popupPromise
   await popup.getByTestId('confirm-footer-button').click()
-  if (!popup.isClosed()) await popup.waitForEvent('close')
+  if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
   await page.bringToFront()
 
   await expect(async () => {
@@ -94,13 +94,13 @@ Given('I have deposited {int} LKBOX', async ({ page, wallet }) => {
   // Register deposit popup listener BEFORE confirming approval to avoid race condition
   popupPromise = page.context().waitForEvent('page')
   await popup.getByTestId('confirm-footer-button').click()
-  if (!popup.isClosed()) await popup.waitForEvent('close')
+  if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
   await page.bringToFront()
 
   // Deposit popup
   popup = await popupPromise
   await popup.getByTestId('confirm-footer-button').click()
-  if (!popup.isClosed()) await popup.waitForEvent('close')
+  if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
   await page.bringToFront()
 
   await expect(async () => {
@@ -128,7 +128,7 @@ Given('I have withdrawn all my LKBOX', async ({ page, wallet }) => {
   await page.getByTestId('mint-lkbox-btn').click()
   let popup = await popupPromise
   await popup.getByTestId('confirm-footer-button').click()
-  if (!popup.isClosed()) await popup.waitForEvent('close')
+  if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
   await page.bringToFront()
   await expect(async () => {
     const text = await page.getByTestId('lkbox-balance').textContent()
@@ -143,11 +143,11 @@ Given('I have withdrawn all my LKBOX', async ({ page, wallet }) => {
   // Register deposit popup listener BEFORE confirming approval to avoid race condition
   popupPromise = page.context().waitForEvent('page')
   await popup.getByTestId('confirm-footer-button').click()
-  if (!popup.isClosed()) await popup.waitForEvent('close')
+  if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
   await page.bringToFront()
   popup = await popupPromise
   await popup.getByTestId('confirm-footer-button').click()
-  if (!popup.isClosed()) await popup.waitForEvent('close')
+  if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
   await page.bringToFront()
   await expect(async () => {
     const text = await page.getByTestId('locked-balance').textContent()
@@ -160,7 +160,7 @@ Given('I have withdrawn all my LKBOX', async ({ page, wallet }) => {
   await page.getByTestId('withdraw-btn').click()
   popup = await popupPromise
   await popup.getByTestId('confirm-footer-button').click()
-  if (!popup.isClosed()) await popup.waitForEvent('close')
+  if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
   await page.bringToFront()
 
   await expect(async () => {

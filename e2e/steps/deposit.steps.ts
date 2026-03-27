@@ -26,7 +26,7 @@ When('I confirm the approval in MetaMask', async ({ page }) => {
   // Register deposit popup listener BEFORE confirming approval to avoid race condition
   const depositPopupPromise = page.context().waitForEvent('page')
   await popup.getByTestId('confirm-footer-button').click()
-  if (!popup.isClosed()) await popup.waitForEvent('close')
+  if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
   await page.bringToFront()
 
   ;(page as any).__pendingPopup = depositPopupPromise
@@ -37,7 +37,7 @@ When('I confirm the deposit in MetaMask', async ({ page }) => {
   if (!pendingPopup) throw new Error('No pending popup')
   const popup = await pendingPopup
   await popup.getByTestId('confirm-footer-button').click()
-  if (!popup.isClosed()) await popup.waitForEvent('close')
+  if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
   ;(page as any).__pendingPopup = null
   await page.bringToFront()
 })
