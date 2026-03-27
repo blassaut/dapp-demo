@@ -40,7 +40,7 @@ export function TxHistory({ records }: TxHistoryProps) {
           <p className="text-[10px] font-mono text-muted/25">{page + 1}/{totalPages}</p>
         )}
       </div>
-      <div className="space-y-1">
+      <div className="space-y-1" style={{ minHeight: `${PAGE_SIZE * 32}px` }}>
         {visible.map((record) => (
           <a
             key={record.txHash}
