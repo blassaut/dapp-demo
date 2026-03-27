@@ -11,7 +11,4 @@ Feature: Visitor deposits LKBOX
     And I confirm the deposit in MetaMask
     Then my locked balance should have increased by 50
     And my wallet LKBOX balance should decrease by 50
-
-  Scenario: Deposit updates on-chain state correctly
-    Given I have deposited 50 LKBOX
-    Then my locked balance should have increased by 50
+    And the transaction should appear in history
