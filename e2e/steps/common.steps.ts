@@ -63,6 +63,8 @@ Given('I have {int} LKBOX in my wallet', async ({ page, wallet }) => {
 
   const lkboxText = await page.getByTestId('lkbox-balance').textContent()
   lkboxBalanceSnapshots.set(page, parseBalance(lkboxText))
+  const lockedText = await page.getByTestId('locked-balance').textContent()
+  lockedBalanceSnapshots.set(page, parseBalance(lockedText))
 })
 
 Given('I have deposited {int} LKBOX', async ({ page, wallet }) => {

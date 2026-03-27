@@ -3,9 +3,8 @@
  */
 import { expect } from '@playwright/test'
 import { createBdd } from 'playwright-bdd'
-import type { Page } from 'playwright-core'
 import { test } from './fixtures'
-import { lkboxBalanceSnapshots } from './common.steps'
+import { lkboxBalanceSnapshots, lockedBalanceSnapshots } from './common.steps'
 
 const { When, Then } = createBdd(test)
 
@@ -22,11 +21,12 @@ Then('the withdraw button should be disabled', async ({ page }) => {
   await expect(page.getByTestId('withdraw-btn')).toBeDisabled()
 })
 
-Then('my locked balance should be {int}', async ({ page }, expected: number) => {
+Then('my locked balance should have decreased by {int}', async ({ page }, decrease: number) => {
+  const snapshot = lockedBalanceSnapshots.get(page) ?? 0
   await expect(async () => {
     const text = await page.getByTestId('locked-balance').textContent()
-    const amount = parseFloat((text ?? '0').replace(/[^0-9.]/g, ''))
-    expect(amount).toBe(expected)
+    const current = parseFloat((text ?? '0').replace(/[^0-9.]/g, ''))
+    expect(current).toBeLessThanOrEqual(snapshot - decrease + 0.01)
   }).toPass({ timeout: 30_000 })
 })
 

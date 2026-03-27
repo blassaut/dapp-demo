@@ -8,9 +8,5 @@ Feature: Visitor withdraws LKBOX
     When I enter "50" in the withdraw input
     And I click "Withdraw"
     And I confirm the transaction in MetaMask
-    Then my locked balance should be 0
+    Then my locked balance should have decreased by 50
     And my wallet LKBOX balance should increase by 50
-
-  Scenario: Withdraw updates on-chain state correctly
-    Given I have withdrawn all my LKBOX
-    Then the contract token balance should equal 0

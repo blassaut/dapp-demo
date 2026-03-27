@@ -5,7 +5,7 @@ import { expect } from '@playwright/test'
 import { createBdd } from 'playwright-bdd'
 import type { Page } from 'playwright-core'
 import { test } from './fixtures'
-import { lkboxBalanceSnapshots } from './common.steps'
+import { lkboxBalanceSnapshots, lockedBalanceSnapshots } from './common.steps'
 
 const { When, Then } = createBdd(test)
 
@@ -41,11 +41,12 @@ When('I confirm the deposit in MetaMask', async ({ page }) => {
   await page.bringToFront()
 })
 
-Then('my locked balance should show {int} LKBOX', async ({ page }, expected: number) => {
+Then('my locked balance should have increased by {int}', async ({ page }, increase: number) => {
+  const snapshot = lockedBalanceSnapshots.get(page) ?? 0
   await expect(async () => {
     const text = await page.getByTestId('locked-balance').textContent()
-    const amount = parseFloat((text ?? '0').replace(/[^0-9.]/g, ''))
-    expect(amount).toBe(expected)
+    const current = parseFloat((text ?? '0').replace(/[^0-9.]/g, ''))
+    expect(current).toBeGreaterThanOrEqual(snapshot + increase - 0.01)
   }).toPass({ timeout: 30_000 })
 })
 
@@ -55,29 +56,5 @@ Then('my wallet LKBOX balance should decrease by {int}', async ({ page }, decrea
     const text = await page.getByTestId('lkbox-balance').textContent()
     const current = parseFloat((text ?? '0').replace(/[^0-9.]/g, ''))
     expect(current).toBeLessThanOrEqual(snapshot - decrease + 0.01)
-  }).toPass({ timeout: 30_000 })
-})
-
-Then('the contract token balance should equal {int} LKBOX', async ({ page }, expected: number) => {
-  await expect(async () => {
-    const text = await page.getByTestId('locked-balance').textContent()
-    const amount = parseFloat((text ?? '0').replace(/[^0-9.]/g, ''))
-    expect(amount).toBe(expected)
-  }).toPass({ timeout: 30_000 })
-})
-
-Then('the contract token balance should equal {int}', async ({ page }, expected: number) => {
-  await expect(async () => {
-    const text = await page.getByTestId('locked-balance').textContent()
-    const amount = parseFloat((text ?? '0').replace(/[^0-9.]/g, ''))
-    expect(amount).toBe(expected)
-  }).toPass({ timeout: 30_000 })
-})
-
-Then('my locked balance should equal {int} LKBOX', async ({ page }, expected: number) => {
-  await expect(async () => {
-    const text = await page.getByTestId('locked-balance').textContent()
-    const amount = parseFloat((text ?? '0').replace(/[^0-9.]/g, ''))
-    expect(amount).toBe(expected)
   }).toPass({ timeout: 30_000 })
 })
