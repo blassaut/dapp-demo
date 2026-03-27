@@ -23,4 +23,6 @@ test-results
 CLAUDE.md
 .claude
 .agents
+.superpowers
 skills-lock.json
+docs/superpowers
