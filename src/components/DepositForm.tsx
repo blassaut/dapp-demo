@@ -58,12 +58,7 @@ export function DepositForm({ appState, lkboxBalance, onDeposit }: DepositFormPr
       </div>
       <div className="flex gap-2.5">
         <button
-          data-testid="approve-btn"
-          style={{ display: 'none' }}
-          aria-hidden="true"
-        />
-        <button
-          data-testid="deposit-btn"
+          data-testid={appState === AppState.Approving ? 'approve-btn' : 'deposit-btn'}
           onClick={() => onDeposit(amount)}
           disabled={depositDisabled}
           className={`flex-1 px-5 py-3 bg-teal-400 text-dark-900 font-body font-semibold text-sm rounded-xl hover:bg-teal-300 hover:shadow-[0_0_32px_rgba(20,184,166,0.3)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:bg-teal-400 disabled:hover:translate-y-0 ${isBusy ? 'animate-shimmer' : ''}`}
@@ -71,12 +66,6 @@ export function DepositForm({ appState, lkboxBalance, onDeposit }: DepositFormPr
           <span className={isBusy ? 'animate-pulse-soft' : ''}>{buttonLabel}</span>
         </button>
       </div>
-      {appState === AppState.Approving && (
-        <p className="text-[11px] font-mono text-muted/40">Step 1/2: Approve token spending</p>
-      )}
-      {appState === AppState.Depositing && (
-        <p className="text-[11px] font-mono text-muted/40">Step 2/2: Deposit into LockBox</p>
-      )}
       {exceedsBalance && parsed > 0 && (
         <p className="text-[11px] font-mono text-muted/40">Max: {lkboxBalance} LKBOX</p>
       )}
