@@ -4,141 +4,139 @@ import { network } from 'hardhat'
 
 async function deployFixture() {
   const { ethers } = await network.connect()
-  const factory = await ethers.getContractFactory('LockBox')
-  const lockbox = await factory.deploy()
+
+  const TokenFactory = await ethers.getContractFactory('LKBOXToken')
+  const token = await TokenFactory.deploy()
+  await token.waitForDeployment()
+
+  const LockBoxFactory = await ethers.getContractFactory('LockBox')
+  const lockbox = await LockBoxFactory.deploy(await token.getAddress())
   await lockbox.waitForDeployment()
-  return { lockbox, ethers }
+
+  return { token, lockbox, ethers }
+}
+
+async function mintTokens(token: any, ethers: any, signer: any, ethAmount: string) {
+  await token.connect(signer).mint({ value: ethers.parseEther(ethAmount) })
+}
+
+async function approveAndDeposit(token: any, lockbox: any, ethers: any, signer: any, lkboxAmount: string) {
+  const amount = ethers.parseEther(lkboxAmount)
+  await token.connect(signer).approve(await lockbox.getAddress(), amount)
+  await lockbox.connect(signer).deposit(amount)
 }
 
 describe('LockBox', () => {
-  it('starts with zero balance', async () => {
-    const { lockbox, ethers } = await deployFixture()
-    const [owner] = await ethers.getSigners()
-    const balance = await lockbox.balanceOf(owner.address)
-    assert.equal(balance, 0n)
+  it('stores the token address', async () => {
+    const { token, lockbox } = await deployFixture()
+    assert.equal(await lockbox.token(), await token.getAddress())
   })
 
-  it('accepts deposit and tracks balance', async () => {
-    const { lockbox, ethers } = await deployFixture()
+  it('deposits after approval', async () => {
+    const { token, lockbox, ethers } = await deployFixture()
     const [owner] = await ethers.getSigners()
-    await lockbox.deposit({ value: ethers.parseEther('1.0') })
-    const balance = await lockbox.balanceOf(owner.address)
-    assert.equal(balance, ethers.parseEther('1.0'))
+    await mintTokens(token, ethers, owner, '1.0')
+    const depositAmount = ethers.parseEther('500')
+    await token.approve(await lockbox.getAddress(), depositAmount)
+    await lockbox.deposit(depositAmount)
+    assert.equal(await lockbox.lockedBalance(owner.address), depositAmount)
+    assert.equal(await token.balanceOf(await lockbox.getAddress()), depositAmount)
   })
 
-  it('accumulates deposits', async () => {
-    const { lockbox, ethers } = await deployFixture()
-    await lockbox.deposit({ value: ethers.parseEther('0.5') })
-    await lockbox.deposit({ value: ethers.parseEther('0.3') })
+  it('reverts deposit without approval', async () => {
+    const { token, lockbox, ethers } = await deployFixture()
     const [owner] = await ethers.getSigners()
-    const balance = await lockbox.balanceOf(owner.address)
-    assert.equal(balance, ethers.parseEther('0.8'))
-  })
-
-  it('withdraws specified amount', async () => {
-    const { lockbox, ethers } = await deployFixture()
-    const [owner] = await ethers.getSigners()
-    await lockbox.deposit({ value: ethers.parseEther('1.0') })
-
-    await lockbox.withdraw(ethers.parseEther('0.4'))
-
-    assert.equal(await lockbox.balanceOf(owner.address), ethers.parseEther('0.6'))
-  })
-
-  it('withdraws full balance', async () => {
-    const { lockbox, ethers } = await deployFixture()
-    const [owner] = await ethers.getSigners()
-    await lockbox.deposit({ value: ethers.parseEther('1.0') })
-
-    const balanceBefore = await ethers.provider.getBalance(owner.address)
-    const tx = await lockbox.withdraw(ethers.parseEther('1.0'))
-    const receipt = await tx.wait()
-    const gasUsed = receipt!.gasUsed * receipt!.gasPrice
-    const balanceAfter = await ethers.provider.getBalance(owner.address)
-
-    assert.equal(balanceAfter + gasUsed - balanceBefore, ethers.parseEther('1.0'))
-    assert.equal(await lockbox.balanceOf(owner.address), 0n)
-  })
-
-  it('reverts withdraw when insufficient balance', async () => {
-    const { lockbox, ethers } = await deployFixture()
-    await lockbox.deposit({ value: ethers.parseEther('0.5') })
+    await mintTokens(token, ethers, owner, '1.0')
     await assert.rejects(
-      async () => { await lockbox.withdraw(ethers.parseEther('1.0')) },
+      async () => { await lockbox.deposit(ethers.parseEther('500')) },
       (error: unknown) => {
         const msg = (error as Error).message
-        return msg.includes('Insufficient balance')
+        return msg.includes('ERC20InsufficientAllowance') || msg.includes('allowance')
       }
     )
   })
 
-  it('reverts withdraw with zero amount', async () => {
-    const { lockbox, ethers } = await deployFixture()
-    await lockbox.deposit({ value: ethers.parseEther('1.0') })
-    await assert.rejects(
-      async () => { await lockbox.withdraw(0n) },
-      (error: unknown) => {
-        const msg = (error as Error).message
-        return msg.includes('Must withdraw > 0')
-      }
-    )
+  it('withdraws and returns tokens', async () => {
+    const { token, lockbox, ethers } = await deployFixture()
+    const [owner] = await ethers.getSigners()
+    await mintTokens(token, ethers, owner, '1.0')
+    await approveAndDeposit(token, lockbox, ethers, owner, '500')
+    await lockbox.withdraw(ethers.parseEther('200'))
+    assert.equal(await lockbox.lockedBalance(owner.address), ethers.parseEther('300'))
+    assert.equal(await token.balanceOf(owner.address), ethers.parseEther('700'))
   })
 
-  it('reverts deposit with zero value', async () => {
-    const { lockbox } = await deployFixture()
+  it('reverts withdraw when amount exceeds locked balance', async () => {
+    const { token, lockbox, ethers } = await deployFixture()
+    const [owner] = await ethers.getSigners()
+    await mintTokens(token, ethers, owner, '1.0')
+    await approveAndDeposit(token, lockbox, ethers, owner, '500')
     await assert.rejects(
-      async () => { await lockbox.deposit({ value: 0n }) },
+      async () => { await lockbox.withdraw(ethers.parseEther('600')) },
       (error: unknown) => {
         const msg = (error as Error).message
-        return msg.includes('Must send ETH')
+        return msg.includes('Insufficient locked balance')
       }
     )
-  })
-
-  it('reports contract balance', async () => {
-    const { lockbox, ethers } = await deployFixture()
-    const [addr1, addr2] = await ethers.getSigners()
-    assert.equal(await lockbox.contractBalance(), 0n)
-
-    await lockbox.connect(addr1).deposit({ value: ethers.parseEther('1.0') })
-    await lockbox.connect(addr2).deposit({ value: ethers.parseEther('2.0') })
-    assert.equal(await lockbox.contractBalance(), ethers.parseEther('3.0'))
-
-    await lockbox.connect(addr1).withdraw(ethers.parseEther('0.5'))
-    assert.equal(await lockbox.contractBalance(), ethers.parseEther('2.5'))
-    assert.equal(await lockbox.balanceOf(addr1.address), ethers.parseEther('0.5'))
   })
 
   it('tracks balances per address independently', async () => {
-    const { lockbox, ethers } = await deployFixture()
+    const { token, lockbox, ethers } = await deployFixture()
     const [addr1, addr2] = await ethers.getSigners()
-    await lockbox.connect(addr1).deposit({ value: ethers.parseEther('1.0') })
-    await lockbox.connect(addr2).deposit({ value: ethers.parseEther('2.0') })
-
-    assert.equal(await lockbox.balanceOf(addr1.address), ethers.parseEther('1.0'))
-    assert.equal(await lockbox.balanceOf(addr2.address), ethers.parseEther('2.0'))
+    await mintTokens(token, ethers, addr1, '1.0')
+    await mintTokens(token, ethers, addr2, '2.0')
+    await approveAndDeposit(token, lockbox, ethers, addr1, '300')
+    await approveAndDeposit(token, lockbox, ethers, addr2, '800')
+    assert.equal(await lockbox.lockedBalance(addr1.address), ethers.parseEther('300'))
+    assert.equal(await lockbox.lockedBalance(addr2.address), ethers.parseEther('800'))
   })
 
-  it('resists reentrancy on withdraw', async () => {
-    const { lockbox, ethers } = await deployFixture()
-    const [, victim] = await ethers.getSigners()
+  it('contract token balance equals sum of deposits minus withdrawals', async () => {
+    const { token, lockbox, ethers } = await deployFixture()
+    const [addr1, addr2] = await ethers.getSigners()
+    await mintTokens(token, ethers, addr1, '1.0')
+    await mintTokens(token, ethers, addr2, '1.0')
+    await approveAndDeposit(token, lockbox, ethers, addr1, '400')
+    await approveAndDeposit(token, lockbox, ethers, addr2, '600')
+    const lockboxAddress = await lockbox.getAddress()
+    assert.equal(await token.balanceOf(lockboxAddress), ethers.parseEther('1000'))
+    await lockbox.connect(addr1).withdraw(ethers.parseEther('100'))
+    assert.equal(await token.balanceOf(lockboxAddress), ethers.parseEther('900'))
+    assert.equal(await lockbox.lockedBalance(addr1.address), ethers.parseEther('300'))
+    assert.equal(await lockbox.lockedBalance(addr2.address), ethers.parseEther('600'))
+  })
 
-    // Victim deposits 2 ETH (funds the attacker should NOT be able to steal)
-    await lockbox.connect(victim).deposit({ value: ethers.parseEther('2.0') })
+  it('emits Deposited event', async () => {
+    const { token, lockbox, ethers } = await deployFixture()
+    const [owner] = await ethers.getSigners()
+    await mintTokens(token, ethers, owner, '1.0')
+    const amount = ethers.parseEther('500')
+    await token.approve(await lockbox.getAddress(), amount)
+    const tx = await lockbox.deposit(amount)
+    const receipt = await tx.wait()
+    const event = receipt!.logs.find(
+      (log: any) => log.fragment?.name === 'Deposited'
+    )
+    assert.ok(event, 'Deposited event not found')
+    const args = (event as any).args
+    assert.equal(args[0], owner.address)
+    assert.equal(args[1], amount)
+  })
 
-    const ReentrantFactory = await ethers.getContractFactory('ReentrantAttacker')
-    const attacker = await ReentrantFactory.deploy(await lockbox.getAddress())
-    await attacker.waitForDeployment()
-
-    // Attacker deposits 1 ETH then tries reentrancy during withdraw
-    await attacker.attack({ value: ethers.parseEther('1.0') })
-
-    // Attacker's balance should be 0 (legitimate withdrawal succeeded)
-    assert.equal(await lockbox.balanceOf(await attacker.getAddress()), 0n)
-    // Victim's funds should be untouched
-    assert.equal(await lockbox.balanceOf(victim.address), ethers.parseEther('2.0'))
-    // Contract should still hold exactly the victim's 2 ETH
-    const contractBalance = await ethers.provider.getBalance(await lockbox.getAddress())
-    assert.equal(contractBalance, ethers.parseEther('2.0'))
+  it('emits Withdrawn event', async () => {
+    const { token, lockbox, ethers } = await deployFixture()
+    const [owner] = await ethers.getSigners()
+    await mintTokens(token, ethers, owner, '1.0')
+    await approveAndDeposit(token, lockbox, ethers, owner, '500')
+    const amount = ethers.parseEther('200')
+    const tx = await lockbox.withdraw(amount)
+    const receipt = await tx.wait()
+    const event = receipt!.logs.find(
+      (log: any) => log.fragment?.name === 'Withdrawn'
+    )
+    assert.ok(event, 'Withdrawn event not found')
+    const args = (event as any).args
+    assert.equal(args[0], owner.address)
+    assert.equal(args[1], amount)
   })
 })
