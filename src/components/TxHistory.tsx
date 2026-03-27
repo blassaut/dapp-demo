@@ -18,9 +18,9 @@ function txColor(type: TxRecord['type']): string {
 
 function txPrefix(type: TxRecord['type']): string {
   switch (type) {
-    case 'mint': return '+'
+    case 'mint': return ''
     case 'deposit': return ''
-    case 'withdrawal': return '-'
+    case 'withdrawal': return ''
   }
 }
 
