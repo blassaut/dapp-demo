@@ -1,13 +1,26 @@
+# Dependencies
 node_modules
+
+# Build outputs
 dist
-.env
-.env.local
-.env.e2e
-*.tsbuildinfo
 cache
 artifacts
 typechain-types
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.e2e
+
+# Testing
 e2e/.generated
 e2e/.hardhat-pid
 playwright-report
 test-results
+
+# AI tooling
+CLAUDE.md
+.claude
+.agents
+skills-lock.json
