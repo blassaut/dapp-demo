@@ -62,6 +62,7 @@ jobs:
         with:
           path: /tmp/dappwright
           key: dappwright-${{ hashFiles('package-lock.json') }}
+          save-always: true
       - run: xvfb-run --auto-servernum npm run test:e2e
       - uses: actions/upload-artifact@v5
         if: ${{ !cancelled() }}

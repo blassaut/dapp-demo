@@ -32,6 +32,9 @@ export const test = base.extend<
         headless: false,
       })
 
+      // Increase timeout for MetaMask UI interactions on cold CI runners
+      wallet.page.setDefaultTimeout(30_000)
+
       // Add the local Hardhat network to MetaMask
       await wallet.addNetwork({
         networkName: 'Hardhat',
