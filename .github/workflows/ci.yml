@@ -57,13 +57,18 @@ jobs:
       - run: npm ci
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
-      - name: Cache MetaMask extension
-        uses: actions/cache@v4
+      - name: Restore MetaMask extension cache
+        uses: actions/cache/restore@v4
         with:
           path: /tmp/dappwright
           key: dappwright-${{ hashFiles('package-lock.json') }}
-          save-always: true
       - run: xvfb-run --auto-servernum npm run test:e2e
+      - name: Save MetaMask extension cache
+        if: ${{ !cancelled() }}
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/dappwright
+          key: dappwright-${{ hashFiles('package-lock.json') }}
       - uses: actions/upload-artifact@v5
         if: ${{ !cancelled() }}
         with:

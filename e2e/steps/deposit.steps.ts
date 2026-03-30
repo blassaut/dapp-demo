@@ -32,12 +32,33 @@ When('I confirm the approval in MetaMask', async ({ page }) => {
   ;(page as any).__pendingPopup = depositPopupPromise
 })
 
-When('I confirm the deposit in MetaMask', async ({ page }) => {
+When('I confirm the deposit in MetaMask', async ({ page, wallet }) => {
   const pendingPopup = (page as any).__pendingPopup as Promise<Page> | null
   if (!pendingPopup) throw new Error('No pending popup')
-  const popup = await pendingPopup
-  await popup.getByTestId('confirm-footer-button').click()
-  if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
+
+  // The deposit popup may open as a new page (normal) or MetaMask may queue
+  // the tx inline without opening a popup (consecutive tx on fast chains).
+  // Race between the popup listener and a short timeout, then fall back to
+  // confirming directly on the MetaMask extension page.
+  let popup: Page | null = null
+  try {
+    popup = await Promise.race([
+      pendingPopup,
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('no-popup')), 15_000),
+      ),
+    ])
+  } catch {
+    // No popup — confirm the queued tx on the MetaMask extension page
+    await wallet.page.bringToFront()
+    await wallet.page.getByTestId('confirm-footer-button').click({ timeout: 30_000 })
+  }
+
+  if (popup) {
+    await popup.getByTestId('confirm-footer-button').click()
+    if (!popup.isClosed()) await popup.waitForEvent('close', { timeout: 30_000 })
+  }
+
   ;(page as any).__pendingPopup = null
   await page.bringToFront()
 })
