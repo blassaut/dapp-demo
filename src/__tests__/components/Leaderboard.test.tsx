@@ -21,7 +21,9 @@ beforeEach(() => {
 describe('Leaderboard', () => {
   it('shows loading state', () => {
     render(<Leaderboard entries={[]} loading={true} />)
-    expect(screen.getByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('Top depositors')).toBeInTheDocument()
+    const spinner = document.querySelector('.animate-spin')
+    expect(spinner).toBeInTheDocument()
   })
 
   it('renders nothing when no entries', () => {
