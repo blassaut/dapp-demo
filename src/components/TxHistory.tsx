@@ -49,7 +49,7 @@ export function TxHistory({ records, loading }: TxHistoryProps) {
             }`}>
               {record.type === 'deposit' ? '+' : '-'}{record.amount} ETH
             </span>
-            <span className="text-[10px] font-mono text-muted/25 group-hover:text-muted/40 transition-colors">
+            <span className="text-[10px] font-mono text-muted/50 group-hover:text-muted/70 transition-colors">
               {truncateHash(record.txHash)}
             </span>
           </a>
