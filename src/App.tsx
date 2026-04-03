@@ -56,7 +56,7 @@ export default function App() {
     return new ContractProvider(contractAddress, provider, rpcUrl)
   }, [isConnected, provider, contractAddress, rpcUrl, address])
 
-  const { balance, contractBalance, appState, statusMessage, lastAction, lastTxHash, history, deposit, withdraw } = useLockBox({
+  const { balance, contractBalance, appState, statusMessage, lastAction, lastTxHash, history, historyLoading, deposit, withdraw } = useLockBox({
     provider: contractProvider,
     isConnected,
     isSupported,
@@ -164,10 +164,10 @@ export default function App() {
                     <LockedBalance balance={balance} />
 
                     {/* Transaction history */}
-                    {history.length > 0 && (
+                    {(historyLoading || history.length > 0) && (
                       <>
                         <div className="h-px bg-white/[0.04]" />
-                        <TxHistory records={history} />
+                        <TxHistory records={history} loading={historyLoading} />
                       </>
                     )}
 
