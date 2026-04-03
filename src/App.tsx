@@ -75,7 +75,7 @@ export default function App() {
       <div className="fixed top-4 left-4 z-10">
         <button
           onClick={() => setShowLeaderboard(!showLeaderboard)}
-          className="text-[10px] font-mono text-muted/40 hover:text-teal-400/70 border border-white/[0.08] hover:border-teal-400/30 rounded-lg px-3 py-1.5 backdrop-blur-sm bg-dark-800/50 transition-all duration-200"
+          className="text-[10px] font-mono text-muted/70 hover:text-teal-400/90 border border-white/[0.15] hover:border-teal-400/30 rounded-lg px-3 py-1.5 backdrop-blur-sm bg-dark-800/50 transition-all duration-200"
         >
           Leaderboard
         </button>
