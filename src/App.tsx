@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useWallet } from './hooks/useWallet'
 import { useNetwork } from './hooks/useNetwork'
 import { useLockBox } from './hooks/useLockBox'
@@ -62,8 +62,15 @@ export default function App() {
     isSupported,
   })
 
+  const amountInputRef = useRef<HTMLInputElement>(null)
   const [showLeaderboard, setShowLeaderboard] = useState(false)
   const { entries: leaderboardEntries, loading: leaderboardLoading } = useLeaderboard(contractAddress, rpcUrl)
+
+  useEffect(() => {
+    if (isConnected && isSupported) {
+      amountInputRef.current?.focus()
+    }
+  }, [isConnected, isSupported])
 
   if (!hasAnyValidAddress) return <ConfigError />
 
@@ -183,6 +190,7 @@ export default function App() {
                       isSupported={isSupported}
                       onDeposit={deposit}
                       onWithdraw={withdraw}
+                      inputRef={amountInputRef}
                     />
                   </>
                 )}

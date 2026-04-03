@@ -1,3 +1,4 @@
+import type { RefObject } from 'react'
 import { useState, useEffect, useRef } from 'react'
 import { parseEther } from 'ethers'
 import { AppState } from '../lib/types'
@@ -10,6 +11,7 @@ interface DepositFormProps {
   isSupported: boolean
   onDeposit: (amount: string) => void
   onWithdraw: (amount: string) => void
+  inputRef?: RefObject<HTMLInputElement>
 }
 
 export function DepositForm({
@@ -20,6 +22,7 @@ export function DepositForm({
   isSupported,
   onDeposit,
   onWithdraw,
+  inputRef,
 }: DepositFormProps) {
   const [amount, setAmount] = useState('')
   const prevAppState = useRef(appState)
@@ -71,6 +74,7 @@ export function DepositForm({
     <div className="space-y-3">
       <div className="relative">
         <input
+          ref={inputRef}
           data-testid="lockbox-input-amount"
           type="number"
           placeholder="0.0"
