@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { JsonRpcProvider, Contract, formatEther, EventLog } from 'ethers'
-import { BLOCK_RANGE } from '../lib/constants'
+import { JsonRpcProvider, Contract, formatEther } from 'ethers'
+import { queryAllEvents } from '../lib/query-events'
 
 const LOCKBOX_ABI = [
   'event Deposited(address indexed user, uint256 amount)',
@@ -30,29 +30,24 @@ export function useLeaderboard(contractAddress: string, rpcUrl: string) {
         const contract = new Contract(contractAddress, LOCKBOX_ABI, provider)
 
         const currentBlock = await provider.getBlockNumber()
-        const fromBlock = Math.max(0, currentBlock - BLOCK_RANGE)
 
         const [depositEvents, withdrawEvents] = await Promise.all([
-          contract.queryFilter(contract.filters.Deposited(), fromBlock, currentBlock),
-          contract.queryFilter(contract.filters.Withdrawn(), fromBlock, currentBlock),
+          queryAllEvents(contract, contract.filters.Deposited(), currentBlock),
+          queryAllEvents(contract, contract.filters.Withdrawn(), currentBlock),
         ])
 
         const balances = new Map<string, bigint>()
 
         for (const event of depositEvents) {
-          if (event instanceof EventLog) {
-            const user = event.args[0] as string
-            const amount = event.args[1] as bigint
-            balances.set(user, (balances.get(user) ?? 0n) + amount)
-          }
+          const user = event.args[0] as string
+          const amount = event.args[1] as bigint
+          balances.set(user, (balances.get(user) ?? 0n) + amount)
         }
 
         for (const event of withdrawEvents) {
-          if (event instanceof EventLog) {
-            const user = event.args[0] as string
-            const amount = event.args[1] as bigint
-            balances.set(user, (balances.get(user) ?? 0n) - amount)
-          }
+          const user = event.args[0] as string
+          const amount = event.args[1] as bigint
+          balances.set(user, (balances.get(user) ?? 0n) - amount)
         }
 
         if (cancelled) return
