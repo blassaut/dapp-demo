@@ -185,6 +185,25 @@ describe('useLockBox', () => {
     expect(result.current.lastAction).toBe('Transaction rejected')
   })
 
+  it('sets historyLoading while fetching history', async () => {
+    let resolveHistory!: (records: never[]) => void
+    const historyPromise = new Promise<never[]>((resolve) => { resolveHistory = resolve })
+    const provider = mockProvider({
+      getHistory: vi.fn().mockReturnValue(historyPromise),
+    })
+    const { result } = renderHook(() =>
+      useLockBox({ provider, isConnected: true, isSupported: true }),
+    )
+
+    expect(result.current.historyLoading).toBe(true)
+
+    await act(async () => {
+      resolveHistory([])
+    })
+
+    expect(result.current.historyLoading).toBe(false)
+  })
+
   it('preserves balance after deposit rejection when balance > 0', async () => {
     let currentBalance = '0'
     const provider = mockProvider({
