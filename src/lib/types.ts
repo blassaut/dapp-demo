@@ -54,6 +54,7 @@ export interface LockBoxState {
   lastAction: string
   lastTxHash: string | null
   history: TxRecord[]
+  historyLoading: boolean
   deposit: (amount: string) => Promise<void>
   withdraw: (amount: string) => Promise<void>
 }

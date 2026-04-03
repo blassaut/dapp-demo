@@ -1,6 +1,6 @@
-import { BrowserProvider, JsonRpcProvider, Contract, formatEther, parseEther, EventLog } from 'ethers'
+import { BrowserProvider, JsonRpcProvider, Contract, formatEther, parseEther } from 'ethers'
 import type { Eip1193Provider, LockBoxProvider, TxRecord } from './types'
-import { BLOCK_RANGE } from './constants'
+import { queryAllEvents } from './query-events'
 
 const LOCKBOX_ABI = [
   'function deposit() external payable',
@@ -64,38 +64,32 @@ export class ContractProvider implements LockBoxProvider {
     const rpcProvider = new JsonRpcProvider(this.rpcUrl)
     const readContract = new Contract(this.contractAddress, LOCKBOX_ABI, rpcProvider)
 
-    // Public RPCs limit eth_getLogs to ~30k blocks per request
     const currentBlock = await rpcProvider.getBlockNumber()
-    const fromBlock = Math.max(0, currentBlock - BLOCK_RANGE)
 
     const depositFilter = readContract.filters.Deposited(address)
     const withdrawFilter = readContract.filters.Withdrawn(address)
 
     const [depositEvents, withdrawEvents] = await Promise.all([
-      readContract.queryFilter(depositFilter, fromBlock, currentBlock),
-      readContract.queryFilter(withdrawFilter, fromBlock, currentBlock),
+      queryAllEvents(readContract, depositFilter, currentBlock),
+      queryAllEvents(readContract, withdrawFilter, currentBlock),
     ])
 
     for (const event of depositEvents) {
-      if (event instanceof EventLog) {
-        records.push({
-          type: 'deposit',
-          amount: formatEther(event.args[1]),
-          txHash: event.transactionHash,
-          blockNumber: event.blockNumber,
-        })
-      }
+      records.push({
+        type: 'deposit',
+        amount: formatEther(event.args[1]),
+        txHash: event.transactionHash,
+        blockNumber: event.blockNumber,
+      })
     }
 
     for (const event of withdrawEvents) {
-      if (event instanceof EventLog) {
-        records.push({
-          type: 'withdrawal',
-          amount: formatEther(event.args[1]),
-          txHash: event.transactionHash,
-          blockNumber: event.blockNumber,
-        })
-      }
+      records.push({
+        type: 'withdrawal',
+        amount: formatEther(event.args[1]),
+        txHash: event.transactionHash,
+        blockNumber: event.blockNumber,
+      })
     }
 
     records.sort((a, b) => b.blockNumber - a.blockNumber)

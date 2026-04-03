@@ -1,3 +1,4 @@
+import type { RefObject } from 'react'
 import { useState, useEffect, useRef } from 'react'
 import { parseEther } from 'ethers'
 import { AppState } from '../lib/types'
@@ -10,6 +11,7 @@ interface DepositFormProps {
   isSupported: boolean
   onDeposit: (amount: string) => void
   onWithdraw: (amount: string) => void
+  inputRef?: RefObject<HTMLInputElement>
 }
 
 export function DepositForm({
@@ -20,6 +22,7 @@ export function DepositForm({
   isSupported,
   onDeposit,
   onWithdraw,
+  inputRef,
 }: DepositFormProps) {
   const [amount, setAmount] = useState('')
   const prevAppState = useRef(appState)
@@ -71,6 +74,7 @@ export function DepositForm({
     <div className="space-y-3">
       <div className="relative">
         <input
+          ref={inputRef}
           data-testid="lockbox-input-amount"
           type="number"
           placeholder="0.0"
@@ -79,9 +83,9 @@ export function DepositForm({
           disabled={!canInteract}
           min="0"
           step="0.01"
-          className="w-full px-4 py-3.5 rounded-xl bg-dark-900/60 border border-white/[0.06] text-light font-mono text-lg placeholder:text-muted/20 focus:border-teal-400/30 focus:outline-none focus:ring-1 focus:ring-teal-400/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="w-full px-4 py-3.5 rounded-xl bg-dark-900/60 border border-white/[0.06] text-light font-mono text-lg placeholder:text-muted/40 focus:border-teal-400/30 focus:outline-none focus:ring-1 focus:ring-teal-400/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         />
-        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono text-muted/30">
+        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono text-muted/50">
           ETH
         </span>
       </div>

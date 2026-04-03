@@ -14,29 +14,25 @@ vi.mock('../../hooks/useLeaderboard', () => ({
   },
 }))
 
-import { useLeaderboard } from '../../hooks/useLeaderboard'
-const mockUseLeaderboard = vi.mocked(useLeaderboard)
-
 beforeEach(() => {
   vi.clearAllMocks()
 })
 
 describe('Leaderboard', () => {
   it('shows loading state', () => {
-    mockUseLeaderboard.mockReturnValue({ entries: [], loading: true })
-    render(<Leaderboard contractAddress="0x123" rpcUrl="http://localhost:8545" />)
-    expect(screen.getByText('loading...')).toBeInTheDocument()
+    render(<Leaderboard entries={[]} loading={true} />)
+    expect(screen.getByText('Top depositors')).toBeInTheDocument()
+    const spinner = document.querySelector('.animate-spin')
+    expect(spinner).toBeInTheDocument()
   })
 
   it('renders nothing when no entries', () => {
-    mockUseLeaderboard.mockReturnValue({ entries: [], loading: false })
-    const { container } = render(<Leaderboard contractAddress="0x123" rpcUrl="http://localhost:8545" />)
+    const { container } = render(<Leaderboard entries={[]} loading={false} />)
     expect(container.firstChild).toBeNull()
   })
 
   it('renders entries with truncated addresses', () => {
-    mockUseLeaderboard.mockReturnValue({ entries: mockEntries, loading: false })
-    render(<Leaderboard contractAddress="0x123" rpcUrl="http://localhost:8545" />)
+    render(<Leaderboard entries={mockEntries} loading={false} />)
     expect(screen.getByText('Top depositors')).toBeInTheDocument()
     expect(screen.getByText('0x1234...5678')).toBeInTheDocument()
     expect(screen.getByText('5 ETH')).toBeInTheDocument()
@@ -45,11 +41,10 @@ describe('Leaderboard', () => {
   })
 
   it('highlights current user with (you) label', () => {
-    mockUseLeaderboard.mockReturnValue({ entries: mockEntries, loading: false })
     render(
       <Leaderboard
-        contractAddress="0x123"
-        rpcUrl="http://localhost:8545"
+        entries={mockEntries}
+        loading={false}
         currentAddress="0x1234567890abcdef1234567890abcdef12345678"
       />,
     )
@@ -57,11 +52,10 @@ describe('Leaderboard', () => {
   })
 
   it('does not show (you) for other addresses', () => {
-    mockUseLeaderboard.mockReturnValue({ entries: mockEntries, loading: false })
     render(
       <Leaderboard
-        contractAddress="0x123"
-        rpcUrl="http://localhost:8545"
+        entries={mockEntries}
+        loading={false}
         currentAddress="0x0000000000000000000000000000000000000000"
       />,
     )
@@ -69,18 +63,16 @@ describe('Leaderboard', () => {
   })
 
   it('shows contract balance when provided', () => {
-    mockUseLeaderboard.mockReturnValue({ entries: mockEntries, loading: false })
     render(
-      <Leaderboard contractAddress="0x123" rpcUrl="http://localhost:8545" contractBalance="6.17" />,
+      <Leaderboard entries={mockEntries} loading={false} contractBalance="6.17" />,
     )
     expect(screen.getByText('Total in contract')).toBeInTheDocument()
     expect(screen.getByText('6.17 ETH')).toBeInTheDocument()
   })
 
   it('hides contract balance when zero', () => {
-    mockUseLeaderboard.mockReturnValue({ entries: mockEntries, loading: false })
     render(
-      <Leaderboard contractAddress="0x123" rpcUrl="http://localhost:8545" contractBalance="0" />,
+      <Leaderboard entries={mockEntries} loading={false} contractBalance="0" />,
     )
     expect(screen.queryByText('Total in contract')).not.toBeInTheDocument()
   })

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useWallet } from './hooks/useWallet'
 import { useNetwork } from './hooks/useNetwork'
 import { useLockBox } from './hooks/useLockBox'
@@ -13,6 +13,7 @@ import { DepositForm } from './components/DepositForm'
 import { StatusPanel } from './components/StatusPanel'
 import { TxHistory } from './components/TxHistory'
 import { Leaderboard } from './components/Leaderboard'
+import { useLeaderboard } from './hooks/useLeaderboard'
 
 import { HARDHAT_CHAIN_ID, HARDHAT_RPC_URL, HOODI_RPC_URL } from './lib/constants'
 
@@ -55,13 +56,21 @@ export default function App() {
     return new ContractProvider(contractAddress, provider, rpcUrl)
   }, [isConnected, provider, contractAddress, rpcUrl, address])
 
-  const { balance, contractBalance, appState, statusMessage, lastAction, lastTxHash, history, deposit, withdraw } = useLockBox({
+  const { balance, contractBalance, appState, statusMessage, lastAction, lastTxHash, history, historyLoading, deposit, withdraw } = useLockBox({
     provider: contractProvider,
     isConnected,
     isSupported,
   })
 
+  const amountInputRef = useRef<HTMLInputElement>(null)
   const [showLeaderboard, setShowLeaderboard] = useState(false)
+  const { entries: leaderboardEntries, loading: leaderboardLoading } = useLeaderboard(contractAddress, rpcUrl)
+
+  useEffect(() => {
+    if (isConnected && isSupported) {
+      amountInputRef.current?.focus()
+    }
+  }, [isConnected, isSupported])
 
   if (!hasAnyValidAddress) return <ConfigError />
 
@@ -73,7 +82,7 @@ export default function App() {
       <div className="fixed top-4 left-4 z-10">
         <button
           onClick={() => setShowLeaderboard(!showLeaderboard)}
-          className="text-[10px] font-mono text-muted/40 hover:text-teal-400/70 border border-white/[0.08] hover:border-teal-400/30 rounded-lg px-3 py-1.5 backdrop-blur-sm bg-dark-800/50 transition-all duration-200"
+          className="text-[10px] font-mono text-muted/70 hover:text-teal-400/90 border border-white/[0.15] hover:border-teal-400/30 rounded-lg px-3 py-1.5 backdrop-blur-sm bg-dark-800/50 transition-all duration-200"
         >
           Leaderboard
         </button>
@@ -101,7 +110,7 @@ export default function App() {
                 ✕
               </button>
             </div>
-            <Leaderboard contractAddress={contractAddress} rpcUrl={rpcUrl} currentAddress={address} contractBalance={contractBalance} />
+            <Leaderboard entries={leaderboardEntries} loading={leaderboardLoading} currentAddress={address} contractBalance={contractBalance} />
           </div>
         </div>
       )}
@@ -162,10 +171,10 @@ export default function App() {
                     <LockedBalance balance={balance} />
 
                     {/* Transaction history */}
-                    {history.length > 0 && (
+                    {(historyLoading || history.length > 0) && (
                       <>
                         <div className="h-px bg-white/[0.04]" />
-                        <TxHistory records={history} />
+                        <TxHistory records={history} loading={historyLoading} />
                       </>
                     )}
 
@@ -181,6 +190,7 @@ export default function App() {
                       isSupported={isSupported}
                       onDeposit={deposit}
                       onWithdraw={withdraw}
+                      inputRef={amountInputRef}
                     />
                   </>
                 )}

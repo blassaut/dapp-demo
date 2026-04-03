@@ -17,6 +17,7 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
   const [lastAction, setLastAction] = useState('')
   const [lastTxHash, setLastTxHash] = useState<string | null>(null)
   const [history, setHistory] = useState<TxRecord[]>([])
+  const [historyLoading, setHistoryLoading] = useState(false)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Derive base state from connection/network
@@ -40,7 +41,8 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
     if (!provider || !isConnected || !isSupported) return
     provider.getBalance().then(setBalance).catch(() => {})
     provider.getContractBalance().then(setContractBalance).catch(() => {})
-    provider.getHistory().then(setHistory).catch(() => {})
+    setHistoryLoading(true)
+    provider.getHistory().then(setHistory).catch(() => {}).finally(() => setHistoryLoading(false))
   }, [provider, isConnected, isSupported])
 
   const refreshHistory = useCallback(() => {
@@ -128,5 +130,5 @@ export function useLockBox({ provider, isConnected, isSupported }: UseLockBoxPro
     }
   }, [])
 
-  return { balance, contractBalance, appState, statusMessage, lastAction, lastTxHash, history, deposit, withdraw }
+  return { balance, contractBalance, appState, statusMessage, lastAction, lastTxHash, history, historyLoading, deposit, withdraw }
 }
