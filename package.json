@@ -27,7 +27,7 @@
     "@nomicfoundation/hardhat-chai-matchers": "^3.0.0",
     "@nomicfoundation/hardhat-ethers": "^4.0.6",
     "@nomicfoundation/hardhat-node-test-runner": "^3.0.12",
-    "@playwright/test": "^1.58.2",
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/vite": "^4.0.0",
     "@tenkeylabs/dappwright": "^2.13.4",
     "@testing-library/jest-dom": "^6.6.3",
