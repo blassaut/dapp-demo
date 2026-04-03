@@ -13,6 +13,7 @@ import { DepositForm } from './components/DepositForm'
 import { StatusPanel } from './components/StatusPanel'
 import { TxHistory } from './components/TxHistory'
 import { Leaderboard } from './components/Leaderboard'
+import { useLeaderboard } from './hooks/useLeaderboard'
 
 import { HARDHAT_CHAIN_ID, HARDHAT_RPC_URL, HOODI_RPC_URL } from './lib/constants'
 
@@ -62,6 +63,7 @@ export default function App() {
   })
 
   const [showLeaderboard, setShowLeaderboard] = useState(false)
+  const { entries: leaderboardEntries, loading: leaderboardLoading } = useLeaderboard(contractAddress, rpcUrl)
 
   if (!hasAnyValidAddress) return <ConfigError />
 
@@ -101,7 +103,7 @@ export default function App() {
                 ✕
               </button>
             </div>
-            <Leaderboard contractAddress={contractAddress} rpcUrl={rpcUrl} currentAddress={address} contractBalance={contractBalance} />
+            <Leaderboard entries={leaderboardEntries} loading={leaderboardLoading} currentAddress={address} contractBalance={contractBalance} />
           </div>
         </div>
       )}

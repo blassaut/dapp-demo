@@ -1,8 +1,9 @@
-import { useLeaderboard, formatLeaderboardAmount } from '../hooks/useLeaderboard'
+import { formatLeaderboardAmount } from '../hooks/useLeaderboard'
+import type { LeaderboardEntry } from '../hooks/useLeaderboard'
 
 interface LeaderboardProps {
-  contractAddress: string
-  rpcUrl: string
+  entries: LeaderboardEntry[]
+  loading: boolean
   currentAddress?: string | null
   contractBalance?: string
 }
@@ -13,8 +14,7 @@ function truncateAddress(addr: string): string {
 
 const RANK_BADGES = ['🥇', '🥈', '🥉'] as const
 
-export function Leaderboard({ contractAddress, rpcUrl, currentAddress, contractBalance }: LeaderboardProps) {
-  const { entries, loading } = useLeaderboard(contractAddress, rpcUrl)
+export function Leaderboard({ entries, loading, currentAddress, contractBalance }: LeaderboardProps) {
 
   const hasBalance = contractBalance && contractBalance !== '0'
   const hasEntries = entries.length > 0
